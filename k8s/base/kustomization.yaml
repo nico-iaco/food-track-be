@@ -1,0 +1,8 @@
+resources:
+  - deployment.yaml
+  - service.yaml
+commonLabels:
+  app: food-track-be
+images:
+  - name: food-details-integrator-be-image
+    newName: ghcr.io/nico-iaco/food-track-be

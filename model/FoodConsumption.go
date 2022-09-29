@@ -16,3 +16,18 @@ type FoodConsumption struct {
 	Unit            string
 	Kcal            float32
 }
+
+/*
+DDL for table food_consumption (First create Meal table)
+create table food_consumption (
+id uuid primary key,
+meal_id uuid not null,
+food_id uuid not null,
+transaction_id uuid not null,
+quantity_used float not null,
+quantity_used_std float not null,
+unit varchar(255) not null,
+kcal float not null,
+foreign key (meal_id) references meal(id)
+);
+*/

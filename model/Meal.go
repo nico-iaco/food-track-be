@@ -3,17 +3,18 @@ package model
 import (
 	"github.com/google/uuid"
 	"github.com/uptrace/bun"
+	"time"
 )
 
 type Meal struct {
-	bun.BaseModel `bun:"table:meal,alias:m"`
-	ID            uuid.UUID `bun:"type:uuid,nullzero,pk"`
-	Name          string    `bun:"type:varchar(255),notnull"`
-	Description   string    `bun:"type:varchar(255),nullzero"`
-	MealType      MealType  `bun:"type:varchar(255),notnull"`
-	//FoodTypes        []FoodType         `bun:"type:varchar(255)[]"`
-	Date             string             `bun:"type:varchar(255),notnull"`
+	bun.BaseModel    `bun:"table:meal,alias:m"`
+	ID               uuid.UUID          `bun:"type:uuid,nullzero,pk"`
+	Name             string             `bun:"type:varchar(255),notnull"`
+	Description      string             `bun:"type:varchar(255),nullzero"`
+	MealType         MealType           `bun:"type:varchar(255),notnull"`
+	Date             time.Time          `bun:"type:date,notnull"`
 	FoodConsumptions []*FoodConsumption `bun:"rel:has-many,join:id=meal_id"`
+	//FoodTypes        []FoodType         `bun:"type:varchar(255)[]"`
 }
 
 type MealType string
@@ -34,3 +35,14 @@ const (
 	Bitter   FoodType = "bitter"
 	Beverage FoodType = "beverage"
 )
+
+/*
+DDL for table meal
+create table meal (
+id uuid primary key,
+name varchar(255) not null,
+description varchar(255),
+meal_type varchar(255) not null,
+date date not null
+);
+*/

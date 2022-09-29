@@ -2,7 +2,6 @@ package dto
 
 import (
 	"github.com/google/uuid"
-	"time"
 )
 
 type FoodTransactionDto struct {
@@ -12,5 +11,5 @@ type FoodTransactionDto struct {
 	AvailableQuantity float32   `json:"availableQuantity"`
 	Unit              string    `json:"unit"`
 	Price             float32   `json:"price"`
-	ExpirationDate    time.Time `json:"expirationDate"`
+	//ExpirationDate    time.Time `json:"expirationDate"`
 }

@@ -3,6 +3,7 @@ package service
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"food-track-be/model/dto"
 	"github.com/google/uuid"
 	"io"
@@ -19,7 +20,9 @@ func NewGroceryService() *GroceryService {
 }
 
 func getCall(url string) ([]byte, error) {
-	response, err := http.Get(url)
+	request, err := http.NewRequest(http.MethodGet, url, nil)
+	request.Header.Add("Content-Type", "application/json")
+	response, err := http.DefaultClient.Do(request)
 	if err != nil {
 		return nil, err
 	}
@@ -30,6 +33,7 @@ func patchCall(url string, body any) ([]byte, error) {
 	var buf bytes.Buffer
 	err := json.NewEncoder(&buf).Encode(body)
 	request, err := http.NewRequest(http.MethodPatch, url, &buf)
+	request.Header.Add("Content-Type", "application/json")
 	if err != nil {
 		return nil, err
 	}
@@ -88,6 +92,9 @@ func (s *GroceryService) UpdateFoodTransaction(foodId uuid.UUID, foodTransaction
 	err = json.Unmarshal(result, &response)
 	if err != nil {
 		return dto.FoodTransactionDto{}, err
+	}
+	if response.ErrorMessage != "" {
+		return dto.FoodTransactionDto{}, errors.New(response.ErrorMessage)
 	}
 	return response.Body, nil
 }

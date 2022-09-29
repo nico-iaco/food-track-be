@@ -16,16 +16,23 @@ func NewMealService(repository *repository.MealRepository) *MealService {
 	return &MealService{repository: repository}
 }
 
-func (s *MealService) FindAll() ([]*dto.MealDto, error) {
-	var mealsDto []*dto.MealDto
+func (s *MealService) FindAll() ([]dto.MealDto, error) {
+	var mealsDto []dto.MealDto
 	meals, err := s.repository.FindAll()
 	if err != nil {
 		return nil, err
 	}
-	mappedField := smapping.MapFields(meals)
-	err = smapping.FillStruct(&mealsDto, mappedField)
+	for _, meal := range meals {
+		mealDto := dto.MealDto{}
+		mappedField := smapping.MapFields(&meal)
+		err = smapping.FillStruct(&mealDto, mappedField)
+		if err != nil {
+			return nil, err
+		}
+		mealsDto = append(mealsDto, mealDto)
+	}
 	if err != nil {
-		return []*dto.MealDto{}, err
+		return []dto.MealDto{}, err
 	}
 	return mealsDto, nil
 }

@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: food-track-be-deployment
+spec:
+  template:
+    spec:
+      containers:
+        - name: food-track-be-container
+          image: food-details-integrator-be-image
+          ports:
+            - containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 5
+          envFrom:
+            -   configMapRef:
+                  name: food-track-be-properties

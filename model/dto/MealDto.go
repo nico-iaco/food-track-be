@@ -1,12 +1,16 @@
 package dto
 
-import "time"
+import (
+	"food-track-be/model"
+	"github.com/google/uuid"
+	"time"
+)
 
 type MealDto struct {
-	ID          string `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	MealType    string `json:"mealType"`
+	ID          uuid.UUID      `json:"id"`
+	Name        string         `json:"name"`
+	Description string         `json:"description"`
+	MealType    model.MealType `json:"mealType"`
+	Date        time.Time      `json:"date"`
 	//FoodTypes   []string  `json:"foodTypes"`
-	Date time.Time `json:"date"`
 }

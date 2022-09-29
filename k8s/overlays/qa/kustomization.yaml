@@ -1,0 +1,18 @@
+namespace: grocery
+resources:
+  - ../../base
+commonLabels:
+  app: food-track-be
+configMapGenerator:
+  - name: food-track-be-properties
+    literals:
+      - PORT=8080
+      - GIN_MODE=release
+      - DB_HOST=192.168.86.6
+      - DB_NAME=food_track
+      - DB_PASSWORD=3cK@0kh#6U6f
+      - DB_PORT=5432
+      - DB_USER=foodtrack
+      - GROCERY_BASE_URL=http://grocery-be-service.grocery.svc.cluster.local:8000
+patchesStrategicMerge:
+  - deployment_patch.yaml

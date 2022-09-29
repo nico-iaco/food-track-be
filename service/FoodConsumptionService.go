@@ -23,8 +23,15 @@ func (s FoodConsumptionService) FindAllFoodConsumptionForMeal(mealId uuid.UUID) 
 	if err != nil {
 		return nil, err
 	}
-	mappedField := smapping.MapFields(foodConsumptions)
-	err = smapping.FillStruct(&foodConsumptionsDto, mappedField)
+	for _, foodConsumption := range foodConsumptions {
+		foodConsumptionDto := dto.FoodConsumptionDto{}
+		mappedField := smapping.MapFields(&foodConsumption)
+		err = smapping.FillStruct(&foodConsumptionDto, mappedField)
+		if err != nil {
+			return nil, err
+		}
+		foodConsumptionsDto = append(foodConsumptionsDto, &foodConsumptionDto)
+	}
 	if err != nil {
 		return []*dto.FoodConsumptionDto{}, err
 	}
@@ -45,14 +52,14 @@ func (s FoodConsumptionService) CreateFoodConsumptionForMeal(mealId uuid.UUID, f
 		return dto.FoodConsumptionDto{}, err
 	}
 	transactionDto.AvailableQuantity -= foodConsumptionDto.QuantityUsed
-	_, err = s.groceryService.UpdateFoodTransaction(foodConsumptionDto.TransactionId, transactionDto)
+	_, err = s.groceryService.UpdateFoodTransaction(foodConsumptionDto.FoodId, transactionDto)
 	if err != nil {
 		return dto.FoodConsumptionDto{}, err
 	}
 	_, err = s.repository.Create(&foodConsumption)
 	if err != nil {
 		transactionDto.AvailableQuantity += foodConsumptionDto.QuantityUsed
-		_, err = s.groceryService.UpdateFoodTransaction(foodConsumptionDto.TransactionId, transactionDto)
+		_, err = s.groceryService.UpdateFoodTransaction(foodConsumptionDto.FoodId, transactionDto)
 		if err != nil {
 			return dto.FoodConsumptionDto{}, err
 		}
@@ -84,14 +91,14 @@ func (s FoodConsumptionService) UpdateFoodConsumptionForMeal(mealId uuid.UUID, f
 		return dto.FoodConsumptionDto{}, err
 	}
 	transactionDto.AvailableQuantity += deltaQuantity
-	_, err = s.groceryService.UpdateFoodTransaction(foodConsumptionDto.TransactionId, transactionDto)
+	_, err = s.groceryService.UpdateFoodTransaction(foodConsumptionDto.FoodId, transactionDto)
 	if err != nil {
 		return dto.FoodConsumptionDto{}, err
 	}
 	_, err = s.repository.Update(&foodConsumption)
 	if err != nil {
 		transactionDto.AvailableQuantity -= deltaQuantity
-		_, err = s.groceryService.UpdateFoodTransaction(foodConsumptionDto.TransactionId, transactionDto)
+		_, err = s.groceryService.UpdateFoodTransaction(foodConsumptionDto.FoodId, transactionDto)
 		if err != nil {
 			return dto.FoodConsumptionDto{}, err
 		}
@@ -115,14 +122,14 @@ func (s FoodConsumptionService) DeleteFoodConsumptionForMeal(mealId uuid.UUID, f
 		return err
 	}
 	transactionDto.AvailableQuantity += foodConsumption.QuantityUsed
-	_, err = s.groceryService.UpdateFoodTransaction(foodConsumption.TransactionId, transactionDto)
+	_, err = s.groceryService.UpdateFoodTransaction(foodConsumption.FoodId, transactionDto)
 	if err != nil {
 		return err
 	}
 	_, err = s.repository.DeleteFoodConsumptionForMeal(mealId, foodConsumptionId)
 	if err != nil {
 		transactionDto.AvailableQuantity -= foodConsumption.QuantityUsed
-		_, err = s.groceryService.UpdateFoodTransaction(foodConsumption.TransactionId, transactionDto)
+		_, err = s.groceryService.UpdateFoodTransaction(foodConsumption.FoodId, transactionDto)
 		if err != nil {
 			return err
 		}
