@@ -7,7 +7,7 @@ spec:
     spec:
       containers:
         - name: food-track-be-container
-          image: food-details-integrator-be-image
+          image: food-track-be-image
           ports:
             - containerPort: 8080
           livenessProbe:
