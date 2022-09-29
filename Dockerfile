@@ -16,4 +16,4 @@ FROM alpine
 
 COPY --from=builder /food-track-be .
 
-CMD [ "/food-details-integrator-be" ]
+CMD [ "/food-track-be" ]
