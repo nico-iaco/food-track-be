@@ -5,7 +5,7 @@ import (
 )
 
 type FoodTransactionDto struct {
-	ID                uuid.UUID `json:"id"`
+	ID                uuid.UUID `json:"id,omitempty"`
 	Vendor            string    `json:"vendor"`
 	Quantity          float32   `json:"quantity"`
 	AvailableQuantity float32   `json:"availableQuantity"`

@@ -56,6 +56,7 @@ func (s FoodConsumptionService) CreateFoodConsumptionForMeal(mealId uuid.UUID, f
 	if err != nil {
 		return dto.FoodConsumptionDto{}, err
 	}
+	foodConsumption.ID = uuid.New()
 	_, err = s.repository.Create(&foodConsumption)
 	if err != nil {
 		transactionDto.AvailableQuantity += foodConsumptionDto.QuantityUsed

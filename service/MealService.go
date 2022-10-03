@@ -58,6 +58,7 @@ func (s *MealService) Create(mealDto dto.MealDto) (dto.MealDto, error) {
 	if err != nil {
 		return mealDto, err
 	}
+	meal.ID = uuid.New()
 	_, err = s.repository.Create(&meal)
 	if err != nil {
 		return dto.MealDto{}, err

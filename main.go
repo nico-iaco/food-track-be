@@ -5,6 +5,7 @@ import (
 	"food-track-be/controller"
 	"food-track-be/repository"
 	"food-track-be/service"
+	"github.com/gin-contrib/cors"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/pgdialect"
 	"github.com/uptrace/bun/driver/pgdriver"
@@ -44,6 +45,7 @@ func main() {
 	mc := controller.NewMealController(ms)
 	fcc := controller.NewFoodConsumptionController(fcs)
 	r := gin.Default()
+	r.Use(cors.Default())
 
 	r.GET("/meal", mc.FindAllMeals)
 	r.GET("/meal/:mealId", mc.FindMealById)

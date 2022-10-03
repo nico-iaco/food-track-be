@@ -7,7 +7,7 @@ import (
 )
 
 type MealDto struct {
-	ID          uuid.UUID      `json:"id"`
+	ID          uuid.UUID      `json:"id,omitempty"`
 	Name        string         `json:"name"`
 	Description string         `json:"description"`
 	MealType    model.MealType `json:"mealType"`
