@@ -7,17 +7,17 @@ spec:
     spec:
       containers:
         - name: food-track-be-container
-          image: food-details-integrator-be-image
+          image: food-track-be-image
           ports:
             - containerPort: 8080
           livenessProbe:
             httpGet:
-              path: /
+              path: /ping
               port: 8080
             initialDelaySeconds: 5
           readinessProbe:
             httpGet:
-              path: /
+              path: /ping
               port: 8080
             initialDelaySeconds: 5
           envFrom:
