@@ -89,7 +89,7 @@ func (s *MealController) UpdateMeal(c *gin.Context) {
 }
 
 func (s *MealController) DeleteMeal(c *gin.Context) {
-	id, _ := uuid.Parse(c.Param("mealsId"))
+	id, _ := uuid.Parse(c.Param("mealId"))
 	err := s.mealService.Delete(id)
 	if err != nil {
 		c.AbortWithStatusJSON(200, dto.BaseResponse[any]{

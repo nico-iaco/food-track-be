@@ -34,9 +34,9 @@ func (r *MealRepository) Create(meal *model.Meal) (sql.Result, error) {
 }
 
 func (r *MealRepository) Update(meal *model.Meal) (sql.Result, error) {
-	return r.db.NewUpdate().Model(meal).Exec(r.ctx)
+	return r.db.NewUpdate().Model(meal).Where("id = ?", meal.ID).Exec(r.ctx)
 }
 
 func (r *MealRepository) Delete(meal *model.Meal) (sql.Result, error) {
-	return r.db.NewDelete().Model(meal).Exec(r.ctx)
+	return r.db.NewDelete().Model(meal).Where("id = ?", meal.ID).Exec(r.ctx)
 }
