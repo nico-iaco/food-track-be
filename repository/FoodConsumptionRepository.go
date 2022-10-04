@@ -40,7 +40,7 @@ func (r *FoodConsumptionRepository) Create(foodConsumption *model.FoodConsumptio
 }
 
 func (r *FoodConsumptionRepository) Update(foodConsumption *model.FoodConsumption) (sql.Result, error) {
-	return r.db.NewUpdate().Model(foodConsumption).Exec(r.ctx)
+	return r.db.NewUpdate().Model(foodConsumption).Where("id = ?", foodConsumption.ID).Exec(r.ctx)
 }
 
 func (r *FoodConsumptionRepository) Delete(foodConsumption *model.FoodConsumption) (sql.Result, error) {
