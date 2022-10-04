@@ -50,7 +50,7 @@ func main() {
 	r.GET("/meal", mc.FindAllMeals)
 	r.GET("/meal/:mealId", mc.FindMealById)
 	r.POST("/meal", mc.CreateMeal)
-	r.PATCH("/meal", mc.UpdateMeal)
+	r.PATCH("/meal/:mealId", mc.UpdateMeal)
 	r.DELETE("/meal/:mealId", mc.DeleteMeal)
 
 	r.GET("/meal/:mealId/consumption", fcc.FindAllConsumptionForMeal)
