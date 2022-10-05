@@ -11,6 +11,7 @@ type FoodConsumption struct {
 	MealID          uuid.UUID
 	FoodId          uuid.UUID
 	TransactionId   uuid.UUID
+	FoodName        string
 	QuantityUsed    float32
 	QuantityUsedStd float32
 	Unit            string
@@ -24,6 +25,7 @@ id uuid primary key,
 meal_id uuid not null,
 food_id uuid not null,
 transaction_id uuid not null,
+food_name varchar(255) not null,
 quantity_used float not null,
 quantity_used_std float not null,
 unit varchar(255) not null,

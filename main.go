@@ -44,8 +44,13 @@ func main() {
 	fcs := service.NewFoodConsumptionService(fcr, gs)
 	mc := controller.NewMealController(ms)
 	fcc := controller.NewFoodConsumptionController(fcs)
+	fds := service.NewFoodDetailService()
+	fdc := controller.NewFoodDetailController(fds)
+
 	r := gin.Default()
 	r.Use(cors.Default())
+
+	r.GET("/detail/:barcode", fdc.GetFoodKcals)
 
 	r.GET("/meal", mc.FindAllMeals)
 	r.GET("/meal/:mealId", mc.FindMealById)

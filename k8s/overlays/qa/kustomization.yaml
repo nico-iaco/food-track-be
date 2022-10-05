@@ -14,5 +14,6 @@ configMapGenerator:
       - DB_PORT=5432
       - DB_USER=foodtrack
       - GROCERY_BASE_URL=http://grocery-be-service.grocery.svc.cluster.local:8000
+      - FOOD_DETAIL_BASE_URL=http://food-details-integrator-be-service.grocery.svc.cluster.local:8080
 patchesStrategicMerge:
   - deployment_patch.yaml
