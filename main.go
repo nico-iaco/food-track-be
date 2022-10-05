@@ -50,7 +50,7 @@ func main() {
 	r := gin.Default()
 	r.Use(cors.Default())
 
-	r.GET("/detail/:barcode", fdc.GetFoodKcals)
+	r.GET("/meal/detail/:barcode", fdc.GetFoodKcals)
 
 	r.GET("/meal", mc.FindAllMeals)
 	r.GET("/meal/:mealId", mc.FindMealById)
