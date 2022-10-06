@@ -39,9 +39,9 @@ func main() {
 
 	mr := repository.NewMealRepository(*db)
 	fcr := repository.NewFoodConsumptionRepository(*db)
-	ms := service.NewMealService(mr)
 	gs := service.NewGroceryService()
 	fcs := service.NewFoodConsumptionService(fcr, gs)
+	ms := service.NewMealService(mr, fcs)
 	mc := controller.NewMealController(ms)
 	fcc := controller.NewFoodConsumptionController(fcs)
 	fds := service.NewFoodDetailService()

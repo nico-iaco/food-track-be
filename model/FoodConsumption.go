@@ -16,6 +16,7 @@ type FoodConsumption struct {
 	QuantityUsedStd float32
 	Unit            string
 	Kcal            float32
+	Cost            float32
 }
 
 /*
@@ -30,6 +31,7 @@ quantity_used float not null,
 quantity_used_std float not null,
 unit varchar(255) not null,
 kcal float not null,
+cost float not null,
 foreign key (meal_id) references meal(id)
 );
 */

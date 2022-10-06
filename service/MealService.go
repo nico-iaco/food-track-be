@@ -9,11 +9,12 @@ import (
 )
 
 type MealService struct {
-	repository *repository.MealRepository
+	repository             *repository.MealRepository
+	foodConsumptionService *FoodConsumptionService
 }
 
-func NewMealService(repository *repository.MealRepository) *MealService {
-	return &MealService{repository: repository}
+func NewMealService(repository *repository.MealRepository, service *FoodConsumptionService) *MealService {
+	return &MealService{repository: repository, foodConsumptionService: service}
 }
 
 func (s *MealService) FindAll() ([]dto.MealDto, error) {
@@ -26,6 +27,14 @@ func (s *MealService) FindAll() ([]dto.MealDto, error) {
 		mealDto := dto.MealDto{}
 		mappedField := smapping.MapFields(&meal)
 		err = smapping.FillStruct(&mealDto, mappedField)
+		if err != nil {
+			return nil, err
+		}
+		mealDto.Kcal, err = s.foodConsumptionService.GetKcalSumForMeal(meal.ID)
+		if err != nil {
+			return nil, err
+		}
+		mealDto.Cost, err = s.foodConsumptionService.GetCostSumForMeal(meal.ID)
 		if err != nil {
 			return nil, err
 		}
@@ -45,6 +54,14 @@ func (s *MealService) FindById(id uuid.UUID) (dto.MealDto, error) {
 	}
 	mappedField := smapping.MapFields(meal)
 	err = smapping.FillStruct(&mealDto, mappedField)
+	if err != nil {
+		return mealDto, err
+	}
+	mealDto.Kcal, err = s.foodConsumptionService.GetKcalSumForMeal(meal.ID)
+	if err != nil {
+		return mealDto, err
+	}
+	mealDto.Cost, err = s.foodConsumptionService.GetCostSumForMeal(meal.ID)
 	if err != nil {
 		return mealDto, err
 	}
@@ -84,6 +101,14 @@ func (s *MealService) Update(mealDto dto.MealDto) (dto.MealDto, error) {
 	}
 	mappedField = smapping.MapFields(&meal)
 	err = smapping.FillStruct(&mealDto, mappedField)
+	if err != nil {
+		return mealDto, err
+	}
+	mealDto.Kcal, err = s.foodConsumptionService.GetKcalSumForMeal(meal.ID)
+	if err != nil {
+		return mealDto, err
+	}
+	mealDto.Cost, err = s.foodConsumptionService.GetCostSumForMeal(meal.ID)
 	if err != nil {
 		return mealDto, err
 	}

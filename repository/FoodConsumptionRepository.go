@@ -54,3 +54,15 @@ func (r *FoodConsumptionRepository) DeleteAllFoodConsumptionForMeal(mealId uuid.
 func (r *FoodConsumptionRepository) DeleteFoodConsumptionForMeal(mealId uuid.UUID, foodConsumptionId uuid.UUID) (sql.Result, error) {
 	return r.db.NewDelete().Model(&model.FoodConsumption{}).Where("meal_id = ?", mealId).Where("id = ?", foodConsumptionId).Exec(r.ctx)
 }
+
+func (r *FoodConsumptionRepository) GetKcalSumForMeal(mealId uuid.UUID) (float32, error) {
+	var sum float32
+	err := r.db.NewSelect().ColumnExpr("SUM(kcal)").Table("food_consumption").Where("meal_id = ?", mealId).Scan(r.ctx, &sum)
+	return sum, err
+}
+
+func (r *FoodConsumptionRepository) GetCostSumForMeal(mealId uuid.UUID) (float32, error) {
+	var sum float32
+	err := r.db.NewSelect().ColumnExpr("SUM(cost)").Table("food_consumption").Where("meal_id = ?", mealId).Scan(r.ctx, &sum)
+	return sum, err
+}
