@@ -57,6 +57,7 @@ func (s FoodConsumptionService) CreateFoodConsumptionForMeal(mealId uuid.UUID, f
 		return dto.FoodConsumptionDto{}, err
 	}
 	foodConsumption.ID = uuid.New()
+	foodConsumption.Cost = (transactionDto.Price / transactionDto.Quantity) * foodConsumptionDto.QuantityUsed
 	_, err = s.repository.Create(&foodConsumption)
 	if err != nil {
 		transactionDto.AvailableQuantity += foodConsumptionDto.QuantityUsed
@@ -96,6 +97,7 @@ func (s FoodConsumptionService) UpdateFoodConsumptionForMeal(mealId uuid.UUID, f
 	if err != nil {
 		return dto.FoodConsumptionDto{}, err
 	}
+	foodConsumption.Cost = (transactionDto.Price / transactionDto.Quantity) * foodConsumptionDto.QuantityUsed
 	_, err = s.repository.Update(&foodConsumption)
 	if err != nil {
 		transactionDto.AvailableQuantity -= deltaQuantity
@@ -137,4 +139,12 @@ func (s FoodConsumptionService) DeleteFoodConsumptionForMeal(mealId uuid.UUID, f
 		return err
 	}
 	return nil
+}
+
+func (s FoodConsumptionService) GetKcalSumForMeal(mealId uuid.UUID) (float32, error) {
+	return s.repository.GetKcalSumForMeal(mealId)
+}
+
+func (s FoodConsumptionService) GetCostSumForMeal(mealId uuid.UUID) (float32, error) {
+	return s.repository.GetCostSumForMeal(mealId)
 }

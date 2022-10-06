@@ -12,4 +12,5 @@ type FoodConsumptionDto struct {
 	QuantityUsedStd float32   `json:"quantityUsedStd"`
 	Unit            string    `json:"unit"`
 	Kcal            float32   `json:"kcal"`
+	Cost            float32   `json:"cost"`
 }
