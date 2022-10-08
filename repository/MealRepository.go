@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"food-track-be/model"
+	"food-track-be/model/dto"
 	"github.com/google/uuid"
 	"github.com/uptrace/bun"
 	"time"
@@ -53,6 +54,27 @@ func (r *MealRepository) GetAverageKcalEatenInDateRange(startRange time.Time, en
 	err = queryResult.Scan(&result)
 	if err != nil {
 		return 0, err
+	}
+	return result, nil
+}
+
+func (r *MealRepository) GetAverageKcalEatenInDateRangePerMealType(startRange time.Time, endRange time.Time) ([]dto.AvgKcalPerMealTypeDto, error) {
+	var result = make([]dto.AvgKcalPerMealTypeDto, 0)
+	queryStr := "SELECT m.meal_type, avg(COALESCE(kcal, 0)) as avg_kcal FROM meal m join food_consumption fc on m.id = fc.meal_id WHERE date BETWEEN ? AND ? group by m.meal_type"
+	queryResult, err := r.db.Query(queryStr, startRange, endRange)
+	if err != nil {
+		return []dto.AvgKcalPerMealTypeDto{}, err
+	}
+	for queryResult.Next() {
+		var e dto.AvgKcalPerMealTypeDto
+		err = queryResult.Scan(&e.MealType, &e.AvgKcal)
+		if err != nil {
+			return []dto.AvgKcalPerMealTypeDto{}, err
+		}
+		result = append(result, e)
+	}
+	if err != nil {
+		return []dto.AvgKcalPerMealTypeDto{}, err
 	}
 	return result, nil
 }
