@@ -6,6 +6,7 @@ import (
 	"food-track-be/repository"
 	"github.com/google/uuid"
 	"github.com/mashingan/smapping"
+	"time"
 )
 
 type MealService struct {
@@ -125,4 +126,26 @@ func (s *MealService) Delete(mealId uuid.UUID) error {
 		return err
 	}
 	return nil
+}
+
+func (s *MealService) GetMealsStatistics() (dto.MealStatisticsDto, error) {
+	var mealStatisticsDto dto.MealStatisticsDto
+	startRange := time.Now().AddDate(0, 0, -7)
+	endRange := time.Now()
+	avgKcal, err := s.repository.GetAverageKcalEatenInDateRange(startRange, endRange)
+	if err != nil {
+		return dto.MealStatisticsDto{}, err
+	}
+	mealStatisticsDto.AverageWeekCalories = avgKcal
+	avgCost, err := s.repository.GetAverageFoodCostInDateRange(startRange, endRange)
+	if err != nil {
+		return dto.MealStatisticsDto{}, err
+	}
+	mealStatisticsDto.AverageWeekFoodCost = avgCost
+	sumFoodCost, err := s.repository.GetSumFoodCostInDateRange(startRange, endRange)
+	if err != nil {
+		return dto.MealStatisticsDto{}, err
+	}
+	mealStatisticsDto.SumWeekFoodCost = sumFoodCost
+	return mealStatisticsDto, nil
 }

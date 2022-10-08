@@ -53,6 +53,7 @@ func main() {
 	r.POST("/meal", mc.CreateMeal)
 	r.PATCH("/meal/:mealId", mc.UpdateMeal)
 	r.DELETE("/meal/:mealId", mc.DeleteMeal)
+	r.GET("/meal/statistics", mc.GetMealStatistics)
 
 	r.GET("/meal/:mealId/consumption", fcc.FindAllConsumptionForMeal)
 	r.POST("/meal/:mealId/consumption", fcc.AddFoodConsumption)
