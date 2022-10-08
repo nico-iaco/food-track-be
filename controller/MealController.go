@@ -102,3 +102,17 @@ func (s *MealController) DeleteMeal(c *gin.Context) {
 	}
 	c.JSON(200, response)
 }
+
+func (s *MealController) GetMealStatistics(c *gin.Context) {
+	statistics, err := s.mealService.GetMealsStatistics()
+	if err != nil {
+		c.AbortWithStatusJSON(200, dto.BaseResponse[any]{
+			ErrorMessage: err.Error(),
+		})
+		return
+	}
+	response := dto.BaseResponse[dto.MealStatisticsDto]{
+		Body: statistics,
+	}
+	c.JSON(200, response)
+}
