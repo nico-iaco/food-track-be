@@ -45,7 +45,7 @@ func (r *MealRepository) Delete(meal *model.Meal) (sql.Result, error) {
 
 func (r *MealRepository) GetAverageKcalEatenInDateRange(startRange time.Time, endRange time.Time) (float64, error) {
 	var result float64
-	queryStr := "SELECT AVG(COALESCE(kcal, 0)) FROM food_consumption WHERE meal_id IN (SELECT id FROM meal WHERE date BETWEEN ? AND ?) GROUP BY meal_id"
+	queryStr := "SELECT AVG(COALESCE(kcal, 0)) FROM food_consumption WHERE meal_id IN (SELECT id FROM meal WHERE date BETWEEN ? AND ?)"
 	queryResult, err := r.db.Query(queryStr, startRange, endRange)
 	if err != nil {
 		return 0, err
