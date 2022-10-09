@@ -17,7 +17,6 @@ and all the food data.
 
 - [PostgreSQL](https://www.postgresql.org/)
 - [grocery-be](https://github.com/nico-iaco/grocery-be)
-- [food-details-integrator-be](https://github.com/nico-iaco/food-detail-integrator-be) (optional)
 
 ## Installation
 
@@ -50,7 +49,6 @@ docker run -p 8080:8080 ghcr.io/nico-iaco/food-track-be:latest -e {ALL_ENV_VARIA
 | DB_USER              | Database user                                |               |
 | DB_PASSWORD          | Database password                            |               |
 | GROCERY_BASE_URL     | Base url for grocery-be app                  |               |
-| FOOD_DETAIL_BASE_URL | Base url for food-details-base-integrator-be |               |
 
 ## Database
 
