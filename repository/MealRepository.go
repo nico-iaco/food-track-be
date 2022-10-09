@@ -45,7 +45,7 @@ func (r *MealRepository) Delete(meal *model.Meal) (sql.Result, error) {
 
 func (r *MealRepository) GetAverageKcalEatenInDateRange(startRange time.Time, endRange time.Time) (float64, error) {
 	var result float64
-	queryStr := "SELECT AVG(COALESCE(kcal, 0)) FROM food_consumption WHERE meal_id IN (SELECT id FROM meal WHERE date BETWEEN ? AND ?)"
+	queryStr := "SELECT SUM(COALESCE(kcal, 0)) FROM food_consumption WHERE meal_id IN (SELECT id FROM meal WHERE date BETWEEN ? AND ?)"
 	queryResult, err := r.db.Query(queryStr, startRange, endRange)
 	if err != nil {
 		return 0, err
@@ -55,13 +55,15 @@ func (r *MealRepository) GetAverageKcalEatenInDateRange(startRange time.Time, en
 	if err != nil {
 		return 0, err
 	}
-	return result, nil
+	rangeInDays := endRange.Sub(startRange).Hours() / 24
+	return result / rangeInDays, nil
 }
 
 func (r *MealRepository) GetAverageKcalEatenInDateRangePerMealType(startRange time.Time, endRange time.Time) ([]dto.AvgKcalPerMealTypeDto, error) {
 	var result = make([]dto.AvgKcalPerMealTypeDto, 0)
-	queryStr := "SELECT m.meal_type, avg(COALESCE(kcal, 0)) as avg_kcal FROM meal m join food_consumption fc on m.id = fc.meal_id WHERE date BETWEEN ? AND ? group by m.meal_type"
-	queryResult, err := r.db.Query(queryStr, startRange, endRange)
+	rangeInDays := endRange.Sub(startRange).Hours() / 24
+	queryStr := "SELECT m.meal_type, SUM(COALESCE(kcal, 0)) / ? as avg_kcal FROM meal m join food_consumption fc on m.id = fc.meal_id WHERE date BETWEEN ? AND ? group by m.meal_type"
+	queryResult, err := r.db.Query(queryStr, rangeInDays, startRange, endRange)
 	if err != nil {
 		return []dto.AvgKcalPerMealTypeDto{}, err
 	}
@@ -81,7 +83,7 @@ func (r *MealRepository) GetAverageKcalEatenInDateRangePerMealType(startRange ti
 
 func (r *MealRepository) GetAverageFoodCostInDateRange(startRange time.Time, endRange time.Time) (float64, error) {
 	var result float64
-	queryStr := "SELECT AVG(COALESCE(cost, 0)) FROM food_consumption WHERE meal_id IN (SELECT id FROM meal WHERE date BETWEEN ? AND ?) GROUP BY meal_id"
+	queryStr := "SELECT SUM(COALESCE(cost, 0)) FROM food_consumption WHERE meal_id IN (SELECT id FROM meal WHERE date BETWEEN ? AND ?) GROUP BY meal_id"
 	queryResult, err := r.db.Query(queryStr, startRange, endRange)
 	if err != nil {
 		return 0, err
@@ -91,7 +93,8 @@ func (r *MealRepository) GetAverageFoodCostInDateRange(startRange time.Time, end
 	if err != nil {
 		return 0, err
 	}
-	return result, nil
+	rangeInDays := endRange.Sub(startRange).Hours() / 24
+	return result / rangeInDays, nil
 }
 
 func (r *MealRepository) GetSumFoodCostInDateRange(startRange time.Time, endRange time.Time) (float64, error) {
