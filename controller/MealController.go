@@ -5,6 +5,7 @@ import (
 	"food-track-be/service"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"time"
 )
 
 type MealController struct {
@@ -16,13 +17,39 @@ func NewMealController(mealService *service.MealService) *MealController {
 }
 
 func (s *MealController) FindAllMeals(c *gin.Context) {
-	mealDtos, err := s.mealService.FindAll()
-	if err != nil {
-		c.AbortWithStatusJSON(200, dto.BaseResponse[any]{
-			ErrorMessage: err.Error(),
-		})
-		return
+	var mealDtos = make([]dto.MealDto, 0)
+	startRangeParam := c.Query("startRange")
+	endRangeParam := c.Query("endRange")
+	if startRangeParam != "" && endRangeParam != "" {
+		startRange, err := time.Parse("02-01-2006", startRangeParam)
+		if err != nil {
+			c.AbortWithStatusJSON(200, dto.BaseResponse[any]{
+				ErrorMessage: err.Error(),
+			})
+			return
+		}
+		endRange, err := time.Parse("02-01-2006", endRangeParam)
+		if err != nil {
+			endRange = startRange
+		}
+		mealDtos, err = s.mealService.FindAllInDateRange(startRange, endRange)
+		if err != nil {
+			c.AbortWithStatusJSON(200, dto.BaseResponse[any]{
+				ErrorMessage: err.Error(),
+			})
+			return
+		}
+	} else {
+		var err error
+		mealDtos, err = s.mealService.FindAll()
+		if err != nil {
+			c.AbortWithStatusJSON(200, dto.BaseResponse[any]{
+				ErrorMessage: err.Error(),
+			})
+			return
+		}
 	}
+
 	response := dto.BaseResponse[[]dto.MealDto]{
 		Body: mealDtos,
 	}
@@ -104,15 +131,43 @@ func (s *MealController) DeleteMeal(c *gin.Context) {
 }
 
 func (s *MealController) GetMealStatistics(c *gin.Context) {
-	statistics, err := s.mealService.GetMealsStatistics()
-	if err != nil {
-		c.AbortWithStatusJSON(200, dto.BaseResponse[any]{
-			ErrorMessage: err.Error(),
-		})
-		return
+	var mealStatisticsDto dto.MealStatisticsDto
+	startRangeParam := c.Query("startRange")
+	endRangeParam := c.Query("endRange")
+	if startRangeParam != "" && endRangeParam != "" {
+		startRange, err := time.Parse("02-01-2006", startRangeParam)
+		if err != nil {
+			c.AbortWithStatusJSON(200, dto.BaseResponse[any]{
+				ErrorMessage: err.Error(),
+			})
+			return
+		}
+		endRange, err := time.Parse("02-01-2006", endRangeParam)
+		if err != nil {
+			endRange = startRange
+		}
+		mealStatisticsDto, err = s.mealService.GetMealsStatistics(startRange, endRange)
+		if err != nil {
+			c.AbortWithStatusJSON(200, dto.BaseResponse[any]{
+				ErrorMessage: err.Error(),
+			})
+			return
+		}
+	} else {
+		startRange := time.Now().AddDate(0, 0, -7)
+		endRange := time.Now()
+		var err error
+		mealStatisticsDto, err = s.mealService.GetMealsStatistics(startRange, endRange)
+		if err != nil {
+			c.AbortWithStatusJSON(200, dto.BaseResponse[any]{
+				ErrorMessage: err.Error(),
+			})
+			return
+		}
 	}
+
 	response := dto.BaseResponse[dto.MealStatisticsDto]{
-		Body: statistics,
+		Body: mealStatisticsDto,
 	}
 	c.JSON(200, response)
 }
