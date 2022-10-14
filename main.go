@@ -29,9 +29,6 @@ func main() {
 		pgdriver.WithDatabase(os.Getenv("DB_NAME")),
 		pgdriver.WithInsecure(true),
 		pgdriver.WithTimeout(5*time.Second),
-		pgdriver.WithDialTimeout(5*time.Second),
-		pgdriver.WithReadTimeout(5*time.Second),
-		pgdriver.WithWriteTimeout(5*time.Second),
 	)
 	sqldb := sql.OpenDB(pgconn)
 	db := bun.NewDB(sqldb, pgdialect.New())
