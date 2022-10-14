@@ -6,30 +6,51 @@ import (
 	"errors"
 	"food-track-be/model/dto"
 	"github.com/google/uuid"
+	"github.com/sony/gobreaker"
 	"io"
 	"net/http"
 	"os"
+	"time"
 )
 
 type GroceryService struct {
-	baseUrl string
+	baseUrl        string
+	circuitBreaker *gobreaker.CircuitBreaker
 }
 
 func NewGroceryService() *GroceryService {
-	return &GroceryService{baseUrl: os.Getenv("GROCERY_BASE_URL")}
+	return &GroceryService{
+		baseUrl: os.Getenv("GROCERY_BASE_URL"),
+		circuitBreaker: gobreaker.NewCircuitBreaker(gobreaker.Settings{
+			Name:        "GroceryService",
+			MaxRequests: 5,
+			Interval:    60 * time.Second,
+			Timeout:     5 * time.Second,
+		}),
+	}
 }
 
-func getCall(url string) ([]byte, error) {
+func (s *GroceryService) getCall(url string) ([]byte, error) {
 	request, err := http.NewRequest(http.MethodGet, url, nil)
 	request.Header.Add("Content-Type", "application/json")
-	response, err := http.DefaultClient.Do(request)
 	if err != nil {
 		return nil, err
 	}
-	return io.ReadAll(response.Body)
+	result, err := s.circuitBreaker.Execute(func() (interface{}, error) {
+		response, err := http.DefaultClient.Do(request)
+		if err != nil {
+			return nil, err
+		}
+		return io.ReadAll(response.Body)
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return result.([]byte), nil
 }
 
-func patchCall(url string, body any) ([]byte, error) {
+func (s *GroceryService) patchCall(url string, body any) ([]byte, error) {
 	var buf bytes.Buffer
 	err := json.NewEncoder(&buf).Encode(body)
 	request, err := http.NewRequest(http.MethodPatch, url, &buf)
@@ -46,7 +67,7 @@ func patchCall(url string, body any) ([]byte, error) {
 
 func (s *GroceryService) GetAllAvailableFood() ([]*dto.FoodAvailableDto, error) {
 	var response dto.BaseResponse[[]*dto.FoodAvailableDto]
-	responseData, err := getCall(s.baseUrl + "/item/")
+	responseData, err := s.getCall(s.baseUrl + "/item/")
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +80,7 @@ func (s *GroceryService) GetAllAvailableFood() ([]*dto.FoodAvailableDto, error) 
 
 func (s *GroceryService) GetAvailableTransactionForFood(foodId uuid.UUID) ([]*dto.FoodTransactionDto, error) {
 	var response dto.BaseResponse[[]*dto.FoodTransactionDto]
-	responseData, err := getCall(s.baseUrl + "/item/" + foodId.String() + "/transaction")
+	responseData, err := s.getCall(s.baseUrl + "/item/" + foodId.String() + "/transaction")
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +93,7 @@ func (s *GroceryService) GetAvailableTransactionForFood(foodId uuid.UUID) ([]*dt
 
 func (s *GroceryService) GetTransactionDetail(foodId uuid.UUID, transactionId uuid.UUID) (dto.FoodTransactionDto, error) {
 	var response dto.BaseResponse[dto.FoodTransactionDto]
-	responseData, err := getCall(s.baseUrl + "/item/" + foodId.String() + "/transaction/" + transactionId.String())
+	responseData, err := s.getCall(s.baseUrl + "/item/" + foodId.String() + "/transaction/" + transactionId.String())
 	if err != nil {
 		return dto.FoodTransactionDto{}, err
 	}
@@ -85,7 +106,7 @@ func (s *GroceryService) GetTransactionDetail(foodId uuid.UUID, transactionId uu
 
 func (s *GroceryService) UpdateFoodTransaction(foodId uuid.UUID, foodTransactionDto dto.FoodTransactionDto) (dto.FoodTransactionDto, error) {
 	var response dto.BaseResponse[dto.FoodTransactionDto]
-	result, err := patchCall(s.baseUrl+"/item/"+foodId.String()+"/transaction/", foodTransactionDto)
+	result, err := s.patchCall(s.baseUrl+"/item/"+foodId.String()+"/transaction/", foodTransactionDto)
 	if err != nil {
 		return dto.FoodTransactionDto{}, err
 	}
