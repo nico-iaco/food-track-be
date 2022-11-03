@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       IMAGE_NAME: food-track-be
-      PROJECT_ID: foody
+      PROJECT_ID: foody-me
       LOCATION: us-central1-docker.pkg.dev
       REPOSITORY: foody-ar
     steps:
