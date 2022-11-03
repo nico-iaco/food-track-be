@@ -18,9 +18,9 @@ func NewMealService(repository *repository.MealRepository, service *FoodConsumpt
 	return &MealService{repository: repository, foodConsumptionService: service}
 }
 
-func (s *MealService) FindAll() ([]dto.MealDto, error) {
+func (s *MealService) FindAll(userId string) ([]dto.MealDto, error) {
 	var mealsDto []dto.MealDto
-	meals, err := s.repository.FindAll()
+	meals, err := s.repository.FindAll(userId)
 	if err != nil {
 		return nil, err
 	}
@@ -47,9 +47,9 @@ func (s *MealService) FindAll() ([]dto.MealDto, error) {
 	return mealsDto, nil
 }
 
-func (s *MealService) FindAllInDateRange(startRange time.Time, endRange time.Time) ([]dto.MealDto, error) {
+func (s *MealService) FindAllInDateRange(startRange time.Time, endRange time.Time, userId string) ([]dto.MealDto, error) {
 	var mealsDto []dto.MealDto
-	meals, err := s.repository.GetMealInDateRange(startRange, endRange)
+	meals, err := s.repository.GetMealInDateRange(startRange, endRange, userId)
 	if err != nil {
 		return nil, err
 	}
@@ -76,9 +76,9 @@ func (s *MealService) FindAllInDateRange(startRange time.Time, endRange time.Tim
 	return mealsDto, nil
 }
 
-func (s *MealService) FindById(id uuid.UUID) (dto.MealDto, error) {
+func (s *MealService) FindById(id uuid.UUID, userId string) (dto.MealDto, error) {
 	mealDto := dto.MealDto{}
-	meal, err := s.repository.FindById(id)
+	meal, err := s.repository.FindByIdAndUserId(id, userId)
 	if err != nil {
 		return mealDto, err
 	}
@@ -118,14 +118,14 @@ func (s *MealService) Create(mealDto dto.MealDto) (dto.MealDto, error) {
 	return mealDto, nil
 }
 
-func (s *MealService) Update(mealDto dto.MealDto) (dto.MealDto, error) {
+func (s *MealService) Update(mealDto dto.MealDto, userId string) (dto.MealDto, error) {
 	meal := model.Meal{}
 	mappedField := smapping.MapFields(&mealDto)
 	err := smapping.FillStruct(&meal, mappedField)
 	if err != nil {
 		return mealDto, err
 	}
-	_, err = s.repository.Update(&meal)
+	_, err = s.repository.Update(&meal, userId)
 	if err != nil {
 		return dto.MealDto{}, err
 	}
@@ -145,39 +145,39 @@ func (s *MealService) Update(mealDto dto.MealDto) (dto.MealDto, error) {
 	return mealDto, nil
 }
 
-func (s *MealService) Delete(mealId uuid.UUID) error {
-	meal, err := s.repository.FindById(mealId)
+func (s *MealService) Delete(mealId uuid.UUID, userId string) error {
+	meal, err := s.repository.FindByIdAndUserId(mealId, userId)
 	if err != nil {
 		return err
 	}
-	_, err = s.repository.Delete(meal)
+	_, err = s.repository.Delete(meal, userId)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (s *MealService) GetMealsStatistics(startRange time.Time, endRange time.Time) (dto.MealStatisticsDto, error) {
+func (s *MealService) GetMealsStatistics(startRange time.Time, endRange time.Time, userId string) (dto.MealStatisticsDto, error) {
 	var mealStatisticsDto dto.MealStatisticsDto
-	avgKcal, err := s.repository.GetAverageKcalEatenInDateRange(startRange, endRange)
+	avgKcal, err := s.repository.GetAverageKcalEatenInDateRange(startRange, endRange, userId)
 	if err != nil {
 		return dto.MealStatisticsDto{}, err
 	}
 	mealStatisticsDto.AverageWeekCalories = avgKcal
 
-	avgKcalPerMealType, err := s.repository.GetAverageKcalEatenInDateRangePerMealType(startRange, endRange)
+	avgKcalPerMealType, err := s.repository.GetAverageKcalEatenInDateRangePerMealType(startRange, endRange, userId)
 	if err != nil {
 		return dto.MealStatisticsDto{}, err
 	}
 	mealStatisticsDto.AverageWeekCaloriesPerMealType = avgKcalPerMealType
 
-	avgCost, err := s.repository.GetAverageFoodCostInDateRange(startRange, endRange)
+	avgCost, err := s.repository.GetAverageFoodCostInDateRange(startRange, endRange, userId)
 	if err != nil {
 		return dto.MealStatisticsDto{}, err
 	}
 	mealStatisticsDto.AverageWeekFoodCost = avgCost
 
-	sumFoodCost, err := s.repository.GetSumFoodCostInDateRange(startRange, endRange)
+	sumFoodCost, err := s.repository.GetSumFoodCostInDateRange(startRange, endRange, userId)
 	if err != nil {
 		return dto.MealStatisticsDto{}, err
 	}

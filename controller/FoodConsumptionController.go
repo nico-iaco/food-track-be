@@ -37,6 +37,7 @@ func (s *FoodConsumptionController) FindAllConsumptionForMeal(c *gin.Context) {
 
 func (s *FoodConsumptionController) AddFoodConsumption(c *gin.Context) {
 	mealId, err := uuid.Parse(c.Param("mealId"))
+	userId := c.GetHeader("iv-user")
 	if err != nil {
 		c.AbortWithStatusJSON(200, dto.BaseResponse[any]{
 			ErrorMessage: err.Error(),
@@ -51,7 +52,7 @@ func (s *FoodConsumptionController) AddFoodConsumption(c *gin.Context) {
 		})
 		return
 	}
-	foodConsumptionDto, err = s.foodConsumptionService.CreateFoodConsumptionForMeal(mealId, foodConsumptionDto)
+	foodConsumptionDto, err = s.foodConsumptionService.CreateFoodConsumptionForMeal(mealId, foodConsumptionDto, userId)
 	if err != nil {
 		c.AbortWithStatusJSON(200, dto.BaseResponse[any]{
 			ErrorMessage: err.Error(),
@@ -65,6 +66,7 @@ func (s *FoodConsumptionController) AddFoodConsumption(c *gin.Context) {
 
 func (s *FoodConsumptionController) UpdateFoodConsumption(c *gin.Context) {
 	mealId, err := uuid.Parse(c.Param("mealId"))
+	userId := c.GetHeader("iv-user")
 	if err != nil {
 		c.AbortWithStatusJSON(200, dto.BaseResponse[any]{
 			ErrorMessage: err.Error(),
@@ -73,7 +75,7 @@ func (s *FoodConsumptionController) UpdateFoodConsumption(c *gin.Context) {
 	}
 	var foodConsumptionDto dto.FoodConsumptionDto
 	c.BindJSON(&foodConsumptionDto)
-	foodConsumptionDto, err = s.foodConsumptionService.UpdateFoodConsumptionForMeal(mealId, foodConsumptionDto)
+	foodConsumptionDto, err = s.foodConsumptionService.UpdateFoodConsumptionForMeal(mealId, foodConsumptionDto, userId)
 	if err != nil {
 		c.AbortWithStatusJSON(200, dto.BaseResponse[any]{
 			ErrorMessage: err.Error(),
@@ -88,13 +90,14 @@ func (s *FoodConsumptionController) UpdateFoodConsumption(c *gin.Context) {
 func (s *FoodConsumptionController) DeleteFoodConsumption(c *gin.Context) {
 	mealId, err := uuid.Parse(c.Param("mealId"))
 	foodConsumptionId, err := uuid.Parse(c.Param("foodConsumptionId"))
+	userId := c.GetHeader("iv-user")
 	if err != nil {
 		c.AbortWithStatusJSON(200, dto.BaseResponse[any]{
 			ErrorMessage: err.Error(),
 		})
 		return
 	}
-	err = s.foodConsumptionService.DeleteFoodConsumptionForMeal(mealId, foodConsumptionId)
+	err = s.foodConsumptionService.DeleteFoodConsumptionForMeal(mealId, foodConsumptionId, userId)
 	if err != nil {
 		c.AbortWithStatusJSON(200, dto.BaseResponse[any]{
 			ErrorMessage: err.Error(),
