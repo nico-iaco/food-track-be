@@ -1,0 +1,39 @@
+---
+name: Build and Push Image to Google Cloud Platform
+on:
+  push:
+    branches: [ master ]
+jobs:
+  build-push-gcr:
+    name: Build and Push to GCP
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_NAME: food-track-be
+      PROJECT_ID: foody
+      LOCATION: us-central1-docker.pkg.dev
+      REPOSITORY: foody-ar
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      -   uses: benjlevesque/short-sha@v1.2
+          id: short-sha
+          with:
+            length: 7
+      - uses: google-github-actions/setup-gcloud@v0
+        with:
+          service_account_key: ${{ secrets.SERVICE_ACCOUNT_KEY }}
+          project_id: ${{ env.PROJECT_ID }}
+          export_default_credentials: true
+      - name: Build Docker Image
+        run: docker build -t $IMAGE_NAME:latest .
+        env:
+          SHORT_SHA: ${{ steps.short-sha.outputs.sha }}
+      - name: Configure Docker Client
+        run: |-
+          gcloud auth configure-docker $LOCATION --quiet
+      - name: Push Docker Image to Artifact Registry
+        run: |-
+          docker tag $IMAGE_NAME:latest $LOCATION/$PROJECT_ID/$REPOSITORY/$IMAGE_NAME:latest
+          docker tag $IMAGE_NAME:latest $LOCATION/$PROJECT_ID/$REPOSITORY/$IMAGE_NAME:$SHA
+          docker push $LOCATION/$PROJECT_ID/$REPOSITORY/$IMAGE_NAME:latest
+          docker push $LOCATION/$PROJECT_ID/$REPOSITORY/$IMAGE_NAME:$SHA
