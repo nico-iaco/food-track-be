@@ -9,7 +9,6 @@ import (
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/pgdialect"
 	"github.com/uptrace/bun/driver/pgdriver"
-	"log"
 	"net/http"
 	"os"
 	"time"
@@ -27,12 +26,23 @@ func main() {
 		pgdriver.WithUser(os.Getenv("DB_USER")),
 		pgdriver.WithPassword(os.Getenv("DB_PASSWORD")),
 		pgdriver.WithDatabase(os.Getenv("DB_NAME")),
-		pgdriver.WithInsecure(true),
 		pgdriver.WithTimeout(5*time.Second),
 	)
 	sqldb := sql.OpenDB(pgconn)
+
 	db := bun.NewDB(sqldb, pgdialect.New())
-	log.Println(db.Ping())
+
+	defer func(db *bun.DB) {
+		err := db.Close()
+		if err != nil {
+			panic(err)
+		}
+	}(db)
+
+	err := db.Ping()
+	if err != nil {
+		panic(err)
+	}
 
 	mr := repository.NewMealRepository(*db)
 	fcr := repository.NewFoodConsumptionRepository(*db)
@@ -43,7 +53,10 @@ func main() {
 	fcc := controller.NewFoodConsumptionController(fcs)
 
 	r := gin.Default()
-	r.Use(cors.Default())
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowAllOrigins = true
+	corsConfig.AllowHeaders = append(corsConfig.AllowHeaders, "iv-user")
+	r.Use(cors.New(corsConfig))
 
 	r.GET("/meal", mc.FindAllMeals)
 	r.GET("/meal/:mealId", mc.FindMealById)

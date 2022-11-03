@@ -9,6 +9,7 @@ import (
 type Meal struct {
 	bun.BaseModel    `bun:"table:meal,alias:m"`
 	ID               uuid.UUID          `bun:"type:uuid,nullzero,pk"`
+	UserId           string             `bun:"type:varchar(255),notnull"`
 	Name             string             `bun:"type:varchar(255),notnull"`
 	Description      string             `bun:"type:varchar(255),nullzero"`
 	MealType         MealType           `bun:"type:varchar(255),notnull"`
@@ -40,6 +41,7 @@ const (
 DDL for table meal
 create table meal (
 id uuid primary key,
+user_id varchar(255) not null,
 name varchar(255) not null,
 description varchar(255),
 meal_type varchar(255) not null,

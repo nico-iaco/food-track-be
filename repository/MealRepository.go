@@ -19,15 +19,15 @@ func NewMealRepository(db bun.DB) *MealRepository {
 	return &MealRepository{db: db, ctx: context.Background()}
 }
 
-func (r *MealRepository) FindAll() ([]*model.Meal, error) {
+func (r *MealRepository) FindAll(userId string) ([]*model.Meal, error) {
 	var meals []*model.Meal
-	err := r.db.NewSelect().Model(&meals).Scan(r.ctx)
+	err := r.db.NewSelect().Model(&meals).Where("user_id = ?", userId).Scan(r.ctx)
 	return meals, err
 }
 
-func (r *MealRepository) FindById(id uuid.UUID) (*model.Meal, error) {
+func (r *MealRepository) FindByIdAndUserId(id uuid.UUID, userId string) (*model.Meal, error) {
 	var meal model.Meal
-	err := r.db.NewSelect().Model(&meal).Where("id = ?", id).Scan(r.ctx)
+	err := r.db.NewSelect().Model(&meal).Where("id = ?", id).Where("user_id = ?", userId).Scan(r.ctx)
 	return &meal, err
 }
 
@@ -35,18 +35,18 @@ func (r *MealRepository) Create(meal *model.Meal) (sql.Result, error) {
 	return r.db.NewInsert().Model(meal).Exec(r.ctx)
 }
 
-func (r *MealRepository) Update(meal *model.Meal) (sql.Result, error) {
-	return r.db.NewUpdate().Model(meal).Where("id = ?", meal.ID).Exec(r.ctx)
+func (r *MealRepository) Update(meal *model.Meal, userId string) (sql.Result, error) {
+	return r.db.NewUpdate().Model(meal).Where("id = ?", meal.ID).Where("user_id = ?", userId).Exec(r.ctx)
 }
 
-func (r *MealRepository) Delete(meal *model.Meal) (sql.Result, error) {
-	return r.db.NewDelete().Model(meal).Where("id = ?", meal.ID).Exec(r.ctx)
+func (r *MealRepository) Delete(meal *model.Meal, userId string) (sql.Result, error) {
+	return r.db.NewDelete().Model(meal).Where("id = ? ", meal.ID, userId).Where("user_id = ?", userId).Exec(r.ctx)
 }
 
-func (r *MealRepository) GetAverageKcalEatenInDateRange(startRange time.Time, endRange time.Time) (float64, error) {
+func (r *MealRepository) GetAverageKcalEatenInDateRange(startRange time.Time, endRange time.Time, userId string) (float64, error) {
 	var result float64
-	queryStr := "SELECT SUM(COALESCE(kcal, 0)) FROM food_consumption WHERE meal_id IN (SELECT id FROM meal WHERE date BETWEEN ? AND ?)"
-	queryResult, err := r.db.Query(queryStr, startRange, endRange)
+	queryStr := "SELECT SUM(COALESCE(kcal, 0)) FROM food_consumption WHERE meal_id IN (SELECT id FROM meal WHERE user_id = ? AND date BETWEEN ? AND ?)"
+	queryResult, err := r.db.Query(queryStr, userId, startRange, endRange)
 	if err != nil {
 		return 0, err
 	}
@@ -62,7 +62,7 @@ func (r *MealRepository) GetAverageKcalEatenInDateRange(startRange time.Time, en
 	return result / rangeInDays, nil
 }
 
-func (r *MealRepository) GetAverageKcalEatenInDateRangePerMealType(startRange time.Time, endRange time.Time) ([]dto.AvgKcalPerMealTypeDto, error) {
+func (r *MealRepository) GetAverageKcalEatenInDateRangePerMealType(startRange time.Time, endRange time.Time, userId string) ([]dto.AvgKcalPerMealTypeDto, error) {
 	var result = make([]dto.AvgKcalPerMealTypeDto, 0)
 	var rangeInDays float64
 	if startRange.Equal(endRange) {
@@ -70,8 +70,8 @@ func (r *MealRepository) GetAverageKcalEatenInDateRangePerMealType(startRange ti
 	} else {
 		rangeInDays = endRange.Sub(startRange).Hours() / 24
 	}
-	queryStr := "SELECT m.meal_type, SUM(COALESCE(kcal, 0)) / ? as avg_kcal FROM meal m join food_consumption fc on m.id = fc.meal_id WHERE date BETWEEN ? AND ? group by m.meal_type"
-	queryResult, err := r.db.Query(queryStr, rangeInDays, startRange, endRange)
+	queryStr := "SELECT m.meal_type, SUM(COALESCE(kcal, 0)) / ? as avg_kcal FROM meal m join food_consumption fc on m.id = fc.meal_id WHERE m.user_id = ? AND date BETWEEN ? AND ? group by m.meal_type"
+	queryResult, err := r.db.Query(queryStr, rangeInDays, userId, startRange, endRange)
 	if err != nil {
 		return []dto.AvgKcalPerMealTypeDto{}, err
 	}
@@ -89,10 +89,10 @@ func (r *MealRepository) GetAverageKcalEatenInDateRangePerMealType(startRange ti
 	return result, nil
 }
 
-func (r *MealRepository) GetAverageFoodCostInDateRange(startRange time.Time, endRange time.Time) (float64, error) {
+func (r *MealRepository) GetAverageFoodCostInDateRange(startRange time.Time, endRange time.Time, userId string) (float64, error) {
 	var result float64
-	queryStr := "SELECT SUM(COALESCE(cost, 0)) FROM food_consumption WHERE meal_id IN (SELECT id FROM meal WHERE date BETWEEN ? AND ?)"
-	queryResult, err := r.db.Query(queryStr, startRange, endRange)
+	queryStr := "SELECT SUM(COALESCE(cost, 0)) FROM food_consumption WHERE meal_id IN (SELECT id FROM meal WHERE user_id = ? AND date BETWEEN ? AND ?)"
+	queryResult, err := r.db.Query(queryStr, userId, startRange, endRange)
 	if err != nil {
 		return 0, err
 	}
@@ -108,10 +108,10 @@ func (r *MealRepository) GetAverageFoodCostInDateRange(startRange time.Time, end
 	return result / rangeInDays, nil
 }
 
-func (r *MealRepository) GetSumFoodCostInDateRange(startRange time.Time, endRange time.Time) (float64, error) {
+func (r *MealRepository) GetSumFoodCostInDateRange(startRange time.Time, endRange time.Time, userId string) (float64, error) {
 	var result float64
-	queryStr := "SELECT SUM(COALESCE(cost, 0)) FROM food_consumption WHERE meal_id IN (SELECT id FROM meal WHERE date BETWEEN ? AND ?)"
-	queryResult, err := r.db.Query(queryStr, startRange, endRange)
+	queryStr := "SELECT SUM(COALESCE(cost, 0)) FROM food_consumption WHERE meal_id IN (SELECT id FROM meal WHERE user_id = ? AND date BETWEEN ? AND ?)"
+	queryResult, err := r.db.Query(queryStr, userId, startRange, endRange)
 	if err != nil {
 		return 0, err
 	}
@@ -123,9 +123,9 @@ func (r *MealRepository) GetSumFoodCostInDateRange(startRange time.Time, endRang
 	return result, nil
 }
 
-func (r *MealRepository) GetMealInDateRange(startRange time.Time, endRange time.Time) ([]model.Meal, error) {
+func (r *MealRepository) GetMealInDateRange(startRange time.Time, endRange time.Time, userId string) ([]model.Meal, error) {
 	var meals []model.Meal
-	err := r.db.NewSelect().Model(&meals).Where("date BETWEEN ? AND ?", startRange, endRange).Scan(r.ctx)
+	err := r.db.NewSelect().Model(&meals).Where("date BETWEEN ? AND ?", startRange, endRange).Where("user_id = ?", userId).Scan(r.ctx)
 	if err != nil {
 		return []model.Meal{}, err
 	}

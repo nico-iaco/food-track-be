@@ -20,6 +20,7 @@ func (s *MealController) FindAllMeals(c *gin.Context) {
 	var mealDtos = make([]dto.MealDto, 0)
 	startRangeParam := c.Query("startRange")
 	endRangeParam := c.Query("endRange")
+	userId := c.GetHeader("iv-user")
 	if startRangeParam != "" && endRangeParam != "" {
 		startRange, err := time.Parse("02-01-2006", startRangeParam)
 		if err != nil {
@@ -32,7 +33,7 @@ func (s *MealController) FindAllMeals(c *gin.Context) {
 		if err != nil {
 			endRange = startRange
 		}
-		mealDtos, err = s.mealService.FindAllInDateRange(startRange, endRange)
+		mealDtos, err = s.mealService.FindAllInDateRange(startRange, endRange, userId)
 		if err != nil {
 			c.AbortWithStatusJSON(200, dto.BaseResponse[any]{
 				ErrorMessage: err.Error(),
@@ -41,7 +42,7 @@ func (s *MealController) FindAllMeals(c *gin.Context) {
 		}
 	} else {
 		var err error
-		mealDtos, err = s.mealService.FindAll()
+		mealDtos, err = s.mealService.FindAll(userId)
 		if err != nil {
 			c.AbortWithStatusJSON(200, dto.BaseResponse[any]{
 				ErrorMessage: err.Error(),
@@ -58,7 +59,8 @@ func (s *MealController) FindAllMeals(c *gin.Context) {
 
 func (s *MealController) FindMealById(c *gin.Context) {
 	id, _ := uuid.Parse(c.Param("mealId"))
-	mealDto, err := s.mealService.FindById(id)
+	userId := c.GetHeader("iv-user")
+	mealDto, err := s.mealService.FindById(id, userId)
 	if err != nil {
 		c.AbortWithStatusJSON(200, dto.BaseResponse[any]{
 			ErrorMessage: err.Error(),
@@ -96,13 +98,14 @@ func (s *MealController) CreateMeal(c *gin.Context) {
 func (s *MealController) UpdateMeal(c *gin.Context) {
 	var mealDto dto.MealDto
 	err := c.BindJSON(&mealDto)
+	userId := c.GetHeader("iv-user")
 	if err != nil {
 		c.AbortWithStatusJSON(200, dto.BaseResponse[any]{
 			ErrorMessage: err.Error(),
 		})
 		return
 	}
-	mealDto, err = s.mealService.Update(mealDto)
+	mealDto, err = s.mealService.Update(mealDto, userId)
 	if err != nil {
 		c.AbortWithStatusJSON(200, dto.BaseResponse[any]{
 			ErrorMessage: err.Error(),
@@ -117,7 +120,8 @@ func (s *MealController) UpdateMeal(c *gin.Context) {
 
 func (s *MealController) DeleteMeal(c *gin.Context) {
 	id, _ := uuid.Parse(c.Param("mealId"))
-	err := s.mealService.Delete(id)
+	userId := c.GetHeader("iv-user")
+	err := s.mealService.Delete(id, userId)
 	if err != nil {
 		c.AbortWithStatusJSON(200, dto.BaseResponse[any]{
 			ErrorMessage: err.Error(),
@@ -134,6 +138,7 @@ func (s *MealController) GetMealStatistics(c *gin.Context) {
 	var mealStatisticsDto dto.MealStatisticsDto
 	startRangeParam := c.Query("startRange")
 	endRangeParam := c.Query("endRange")
+	userId := c.GetHeader("iv-user")
 	if startRangeParam != "" && endRangeParam != "" {
 		startRange, err := time.Parse("02-01-2006", startRangeParam)
 		if err != nil {
@@ -146,7 +151,7 @@ func (s *MealController) GetMealStatistics(c *gin.Context) {
 		if err != nil {
 			endRange = startRange
 		}
-		mealStatisticsDto, err = s.mealService.GetMealsStatistics(startRange, endRange)
+		mealStatisticsDto, err = s.mealService.GetMealsStatistics(startRange, endRange, userId)
 		if err != nil {
 			c.AbortWithStatusJSON(200, dto.BaseResponse[any]{
 				ErrorMessage: err.Error(),
@@ -157,7 +162,7 @@ func (s *MealController) GetMealStatistics(c *gin.Context) {
 		startRange := time.Now().AddDate(0, 0, -7)
 		endRange := time.Now()
 		var err error
-		mealStatisticsDto, err = s.mealService.GetMealsStatistics(startRange, endRange)
+		mealStatisticsDto, err = s.mealService.GetMealsStatistics(startRange, endRange, userId)
 		if err != nil {
 			c.AbortWithStatusJSON(200, dto.BaseResponse[any]{
 				ErrorMessage: err.Error(),
