@@ -61,7 +61,7 @@ CREATE DATABASE food_track;
 ```sql
 create table meal (
     id uuid primary key,
-    user_id uuid not null,
+    user_id varchar(255) not null,
     name varchar(255) not null,
     description varchar(255),
     meal_type varchar(255) not null,
