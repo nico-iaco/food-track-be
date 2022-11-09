@@ -58,17 +58,17 @@ func main() {
 	corsConfig.AllowHeaders = append(corsConfig.AllowHeaders, "iv-user")
 	r.Use(cors.New(corsConfig))
 
-	r.GET("/meal", mc.FindAllMeals)
-	r.GET("/meal/:mealId", mc.FindMealById)
-	r.POST("/meal", mc.CreateMeal)
-	r.PATCH("/meal/:mealId", mc.UpdateMeal)
-	r.DELETE("/meal/:mealId", mc.DeleteMeal)
-	r.GET("/meal/statistics", mc.GetMealStatistics)
+	r.GET("/api/meal", mc.FindAllMeals)
+	r.GET("/api/meal/:mealId", mc.FindMealById)
+	r.POST("/api/meal", mc.CreateMeal)
+	r.PATCH("/api/meal/:mealId", mc.UpdateMeal)
+	r.DELETE("/api/meal/:mealId", mc.DeleteMeal)
+	r.GET("/api/meal/statistics", mc.GetMealStatistics)
 
-	r.GET("/meal/:mealId/consumption", fcc.FindAllConsumptionForMeal)
-	r.POST("/meal/:mealId/consumption", fcc.AddFoodConsumption)
-	r.PATCH("/meal/:mealId/consumption/:consumptionId", fcc.UpdateFoodConsumption)
-	r.DELETE("/meal/:mealId/consumption/:foodConsumptionId", fcc.DeleteFoodConsumption)
+	r.GET("/api/meal/:mealId/consumption", fcc.FindAllConsumptionForMeal)
+	r.POST("/api/meal/:mealId/consumption", fcc.AddFoodConsumption)
+	r.PATCH("/api/meal/:mealId/consumption/:consumptionId", fcc.UpdateFoodConsumption)
+	r.DELETE("/api/meal/:mealId/consumption/:foodConsumptionId", fcc.DeleteFoodConsumption)
 
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
