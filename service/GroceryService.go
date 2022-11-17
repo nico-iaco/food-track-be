@@ -69,7 +69,7 @@ func (s *GroceryService) patchCall(url string, body any, userId string) ([]byte,
 
 func (s *GroceryService) GetAllAvailableFood(userId string) ([]*dto.FoodAvailableDto, error) {
 	var response dto.BaseResponse[[]*dto.FoodAvailableDto]
-	responseData, err := s.getCall(s.baseUrl+"/item/", userId)
+	responseData, err := s.getCall(s.baseUrl+"/api/item/", userId)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +82,7 @@ func (s *GroceryService) GetAllAvailableFood(userId string) ([]*dto.FoodAvailabl
 
 func (s *GroceryService) GetAvailableTransactionForFood(foodId uuid.UUID, userId string) ([]*dto.FoodTransactionDto, error) {
 	var response dto.BaseResponse[[]*dto.FoodTransactionDto]
-	responseData, err := s.getCall(s.baseUrl+"/item/"+foodId.String()+"/transaction", userId)
+	responseData, err := s.getCall(s.baseUrl+"/api/item/"+foodId.String()+"/transaction", userId)
 	if err != nil {
 		return nil, err
 	}
@@ -95,7 +95,7 @@ func (s *GroceryService) GetAvailableTransactionForFood(foodId uuid.UUID, userId
 
 func (s *GroceryService) GetTransactionDetail(foodId uuid.UUID, transactionId uuid.UUID, userId string) (dto.FoodTransactionDto, error) {
 	var response dto.BaseResponse[dto.FoodTransactionDto]
-	responseData, err := s.getCall(s.baseUrl+"/item/"+foodId.String()+"/transaction/"+transactionId.String(), userId)
+	responseData, err := s.getCall(s.baseUrl+"/api/item/"+foodId.String()+"/transaction/"+transactionId.String(), userId)
 	if err != nil {
 		return dto.FoodTransactionDto{}, err
 	}
@@ -108,7 +108,7 @@ func (s *GroceryService) GetTransactionDetail(foodId uuid.UUID, transactionId uu
 
 func (s *GroceryService) UpdateFoodTransaction(foodId uuid.UUID, foodTransactionDto dto.FoodTransactionDto, userId string) (dto.FoodTransactionDto, error) {
 	var response dto.BaseResponse[dto.FoodTransactionDto]
-	result, err := s.patchCall(s.baseUrl+"/item/"+foodId.String()+"/transaction/", foodTransactionDto, userId)
+	result, err := s.patchCall(s.baseUrl+"/api/item/"+foodId.String()+"/transaction/", foodTransactionDto, userId)
 	if err != nil {
 		return dto.FoodTransactionDto{}, err
 	}
