@@ -58,9 +58,9 @@ func main() {
 	corsConfig.AllowHeaders = append(corsConfig.AllowHeaders, "iv-user")
 	r.Use(cors.New(corsConfig))
 
-	r.GET("/api/meal", mc.FindAllMeals)
+	r.GET("/api/meal/", mc.FindAllMeals)
 	r.GET("/api/meal/:mealId", mc.FindMealById)
-	r.POST("/api/meal", mc.CreateMeal)
+	r.POST("/api/meal/", mc.CreateMeal)
 	r.PATCH("/api/meal/:mealId", mc.UpdateMeal)
 	r.DELETE("/api/meal/:mealId", mc.DeleteMeal)
 	r.GET("/api/meal/statistics", mc.GetMealStatistics)
