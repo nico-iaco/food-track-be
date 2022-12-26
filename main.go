@@ -24,7 +24,7 @@ func main() {
 		pgdriver.WithUser(os.Getenv("DB_USER")),
 		pgdriver.WithPassword(os.Getenv("DB_PASSWORD")),
 		pgdriver.WithDatabase(os.Getenv("DB_NAME")),
-		pgdriver.WithTimeout(5*time.Second),
+		pgdriver.WithTimeout(1*time.Second),
 	)
 	sqldb := sql.OpenDB(pgconn)
 

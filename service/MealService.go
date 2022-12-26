@@ -183,5 +183,11 @@ func (s *MealService) GetMealsStatistics(startRange time.Time, endRange time.Tim
 	}
 	mealStatisticsDto.SumWeekFoodCost = sumFoodCost
 
+	mostConsumedFood, err := s.foodConsumptionService.GetMostConsumedFoodInDateRange(startRange, endRange, userId)
+	if err != nil {
+		return dto.MealStatisticsDto{}, err
+	}
+	mealStatisticsDto.MostConsumedFood = *mostConsumedFood
+
 	return mealStatisticsDto, nil
 }

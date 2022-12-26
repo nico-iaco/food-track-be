@@ -6,6 +6,7 @@ import (
 	"food-track-be/repository"
 	"github.com/google/uuid"
 	"github.com/mashingan/smapping"
+	"time"
 )
 
 type FoodConsumptionService struct {
@@ -175,4 +176,13 @@ func (s FoodConsumptionService) GetKcalSumForMeal(mealId uuid.UUID) (float32, er
 
 func (s FoodConsumptionService) GetCostSumForMeal(mealId uuid.UUID) (float32, error) {
 	return s.repository.GetCostSumForMeal(mealId)
+}
+
+func (s FoodConsumptionService) GetMostConsumedFoodInDateRange(startDate time.Time, endDate time.Time, userId string) (*dto.MostConsumedFoodDto, error) {
+	mostConsumedFood, err := s.repository.GetMostConsumedFoodInDateRange(startDate, endDate, userId)
+	if err != nil {
+		return &dto.MostConsumedFoodDto{}, err
+	}
+
+	return mostConsumedFood, nil
 }

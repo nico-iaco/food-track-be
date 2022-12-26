@@ -5,4 +5,5 @@ type MealStatisticsDto struct {
 	AverageWeekCaloriesPerMealType []AvgKcalPerMealTypeDto `json:"averageWeekCaloriesPerMealType"`
 	AverageWeekFoodCost            float64                 `json:"averageWeekFoodCost"`
 	SumWeekFoodCost                float64                 `json:"sumWeekFoodCost"`
+	MostConsumedFood               MostConsumedFoodDto     `json:"mostConsumedFood"`
 }
