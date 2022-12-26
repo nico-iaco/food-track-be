@@ -56,6 +56,7 @@ func (r *MealRepository) GetAverageKcalEatenInDateRange(startRange time.Time, en
 	}
 	queryResult.Next()
 	err = queryResult.Scan(&result)
+	queryResult.Close()
 	if err != nil {
 		return 0, err
 	}
@@ -79,7 +80,7 @@ func (r *MealRepository) GetAverageKcalEatenInDateRangePerMealType(startRange ti
 
 	queryStr := "SELECT m.meal_type, COALESCE(SUM(kcal), 0.0) / ? as avg_kcal FROM meal m join food_consumption fc on m.id = fc.meal_id WHERE m.user_id = ? AND date BETWEEN ? AND ? group by m.meal_type"
 	queryResult, err := r.db.Query(queryStr, rangeInDays, userId, startRange, endRange)
-	defer queryResult.Close()
+
 	if err != nil {
 		return []dto.AvgKcalPerMealTypeDto{}, err
 	}
@@ -91,6 +92,7 @@ func (r *MealRepository) GetAverageKcalEatenInDateRangePerMealType(startRange ti
 		}
 		result = append(result, e)
 	}
+	queryResult.Close()
 	if err != nil {
 		return []dto.AvgKcalPerMealTypeDto{}, err
 	}
@@ -104,12 +106,12 @@ func (r *MealRepository) GetAverageFoodCostInDateRange(startRange time.Time, end
 
 	queryStr := "SELECT COALESCE(SUM(cost), 0.0) FROM food_consumption WHERE meal_id IN (SELECT id FROM meal WHERE user_id = ? AND date BETWEEN ? AND ?)"
 	queryResult, err := r.db.Query(queryStr, userId, startRange, endRange)
-	defer queryResult.Close()
 	if err != nil {
 		return 0, err
 	}
 	queryResult.Next()
 	err = queryResult.Scan(&result)
+	queryResult.Close()
 	if err != nil {
 		return 0, err
 	}
@@ -127,12 +129,12 @@ func (r *MealRepository) GetSumFoodCostInDateRange(startRange time.Time, endRang
 
 	queryStr := "SELECT COALESCE(SUM(cost), 0.0) FROM food_consumption WHERE meal_id IN (SELECT id FROM meal WHERE user_id = ? AND date BETWEEN ? AND ?)"
 	queryResult, err := r.db.Query(queryStr, userId, startRange, endRange)
-	defer queryResult.Close()
 	if err != nil {
 		return 0, err
 	}
 	queryResult.Next()
 	err = queryResult.Scan(&result)
+	queryResult.Close()
 	if err != nil {
 		return 0, err
 	}
