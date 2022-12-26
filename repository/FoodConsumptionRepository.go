@@ -74,13 +74,7 @@ func (r *FoodConsumptionRepository) GetMostConsumedFoodInDateRange(startRange ti
 	endRange = setEndOfTheDay(endRange)
 
 	query := "SELECT food_id as foodId, food_name AS foodName, SUM(quantity_used_std) AS quantityUsedStd, SUM(quantity_used) AS quantityUsed, unit  FROM food_consumption where meal_id in (select id from meal where user_id = ? and date >= ? and date <= ?) group by food_id, food_name, unit order by quantityUsedStd desc limit 1"
-	queryResult, err := r.db.Query(query, userId, startRange, endRange)
-	if err != nil {
-		return nil, err
-	}
-	queryResult.Next()
-	err = queryResult.Scan(&mostConsumedFoodDto.FoodId, &mostConsumedFoodDto.FoodName, &mostConsumedFoodDto.QuantityUsedStd, &mostConsumedFoodDto.QuantityUsed, &mostConsumedFoodDto.Unit)
-	queryResult.Close()
+	err := r.db.QueryRow(query, userId, startRange, endRange).Scan(&mostConsumedFoodDto.FoodId, &mostConsumedFoodDto.FoodName, &mostConsumedFoodDto.QuantityUsedStd, &mostConsumedFoodDto.QuantityUsed, &mostConsumedFoodDto.Unit)
 	if err != nil {
 		return nil, err
 	}
