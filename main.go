@@ -1,7 +1,9 @@
 package main
 
 import (
+	"context"
 	"database/sql"
+	firebase "firebase.google.com/go/v4"
 	"food-track-be/controller"
 	"food-track-be/repository"
 	"food-track-be/service"
@@ -43,18 +45,23 @@ func main() {
 		panic(err)
 	}
 
+	app, err := firebase.NewApp(context.Background(), nil)
+	if err != nil {
+		log.Fatalf("error initializing app: %v\n", err)
+	}
+
 	mr := repository.NewMealRepository(*db)
 	fcr := repository.NewFoodConsumptionRepository(*db)
 	gs := service.NewGroceryService()
 	fcs := service.NewFoodConsumptionService(fcr, gs)
 	ms := service.NewMealService(mr, fcs)
-	mc := controller.NewMealController(ms)
-	fcc := controller.NewFoodConsumptionController(fcs)
+	mc := controller.NewMealController(ms, app)
+	fcc := controller.NewFoodConsumptionController(fcs, app)
 
 	r := gin.Default()
 	corsConfig := cors.DefaultConfig()
 	corsConfig.AllowAllOrigins = true
-	corsConfig.AllowHeaders = append(corsConfig.AllowHeaders, "iv-user")
+	//corsConfig.AllowHeaders = append(corsConfig.AllowHeaders, "iv-user")
 	r.Use(cors.New(corsConfig))
 
 	r.GET("/api/meal/", mc.FindAllMeals)
