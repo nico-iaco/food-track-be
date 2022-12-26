@@ -9,6 +9,7 @@ import (
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/pgdialect"
 	"github.com/uptrace/bun/driver/pgdriver"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -18,9 +19,6 @@ import (
 
 func main() {
 
-	//dsn := os.ExpandEnv("postgres://$DB_USER:$DB_PASSWORD@$DB_HOST:$DB_PORT/$DB_NAME")
-
-	//log.Println("connecting to database ", dsn)
 	pgconn := pgdriver.NewConnector(
 		pgdriver.WithAddr(os.Getenv("DB_HOST")+":"+os.Getenv("DB_PORT")),
 		pgdriver.WithUser(os.Getenv("DB_USER")),
@@ -41,6 +39,7 @@ func main() {
 
 	err := db.Ping()
 	if err != nil {
+		log.Println(err)
 		panic(err)
 	}
 
