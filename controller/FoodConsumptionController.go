@@ -47,7 +47,8 @@ func (s *FoodConsumptionController) AddFoodConsumption(c *gin.Context) {
 		s.abortWithMessage(c, err.Error())
 		return
 	}
-	userId, err := s.validateTokenAndGetUserId(c.GetHeader("Authorization"))
+	token := c.GetHeader("Authorization")
+	_, err = s.validateTokenAndGetUserId(token)
 	if err != nil {
 		s.abortWithMessage(c, err.Error())
 		return
@@ -58,7 +59,7 @@ func (s *FoodConsumptionController) AddFoodConsumption(c *gin.Context) {
 		s.abortWithMessage(c, err.Error())
 		return
 	}
-	foodConsumptionDto, err = s.foodConsumptionService.CreateFoodConsumptionForMeal(mealId, foodConsumptionDto, userId)
+	foodConsumptionDto, err = s.foodConsumptionService.CreateFoodConsumptionForMeal(mealId, foodConsumptionDto, token)
 	if err != nil {
 		s.abortWithMessage(c, err.Error())
 		return
@@ -74,14 +75,15 @@ func (s *FoodConsumptionController) UpdateFoodConsumption(c *gin.Context) {
 		s.abortWithMessage(c, err.Error())
 		return
 	}
-	userId, err := s.validateTokenAndGetUserId(c.GetHeader("Authorization"))
+	token := c.GetHeader("Authorization")
+	_, err = s.validateTokenAndGetUserId(token)
 	if err != nil {
 		s.abortWithMessage(c, err.Error())
 		return
 	}
 	var foodConsumptionDto dto.FoodConsumptionDto
 	c.BindJSON(&foodConsumptionDto)
-	foodConsumptionDto, err = s.foodConsumptionService.UpdateFoodConsumptionForMeal(mealId, foodConsumptionDto, userId)
+	foodConsumptionDto, err = s.foodConsumptionService.UpdateFoodConsumptionForMeal(mealId, foodConsumptionDto, token)
 	if err != nil {
 		s.abortWithMessage(c, err.Error())
 		return
@@ -98,12 +100,13 @@ func (s *FoodConsumptionController) DeleteFoodConsumption(c *gin.Context) {
 		s.abortWithMessage(c, err.Error())
 		return
 	}
-	userId, err := s.validateTokenAndGetUserId(c.GetHeader("Authorization"))
+	token := c.GetHeader("Authorization")
+	_, err = s.validateTokenAndGetUserId(token)
 	if err != nil {
 		s.abortWithMessage(c, err.Error())
 		return
 	}
-	err = s.foodConsumptionService.DeleteFoodConsumptionForMeal(mealId, foodConsumptionId, userId)
+	err = s.foodConsumptionService.DeleteFoodConsumptionForMeal(mealId, foodConsumptionId, token)
 	if err != nil {
 		s.abortWithMessage(c, err.Error())
 		return

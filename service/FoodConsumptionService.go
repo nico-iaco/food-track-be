@@ -39,7 +39,7 @@ func (s FoodConsumptionService) FindAllFoodConsumptionForMeal(mealId uuid.UUID) 
 	return foodConsumptionsDto, nil
 }
 
-func (s FoodConsumptionService) CreateFoodConsumptionForMeal(mealId uuid.UUID, foodConsumptionDto dto.FoodConsumptionDto, userId string) (dto.FoodConsumptionDto, error) {
+func (s FoodConsumptionService) CreateFoodConsumptionForMeal(mealId uuid.UUID, foodConsumptionDto dto.FoodConsumptionDto, token string) (dto.FoodConsumptionDto, error) {
 	foodConsumption := model.FoodConsumption{}
 	mappedField := smapping.MapFields(&foodConsumptionDto)
 	err := smapping.FillStruct(&foodConsumption, mappedField)
@@ -50,12 +50,12 @@ func (s FoodConsumptionService) CreateFoodConsumptionForMeal(mealId uuid.UUID, f
 	foodConsumption.ID = uuid.New()
 	var transactionDto dto.FoodTransactionDto
 	if foodConsumption.FoodId != uuid.Nil && foodConsumption.TransactionId != uuid.Nil {
-		transactionDto, err = s.groceryService.GetTransactionDetail(foodConsumptionDto.FoodId, foodConsumptionDto.TransactionId, userId)
+		transactionDto, err = s.groceryService.GetTransactionDetail(foodConsumptionDto.FoodId, foodConsumptionDto.TransactionId, token)
 		if err != nil {
 			return dto.FoodConsumptionDto{}, err
 		}
 		transactionDto.AvailableQuantity -= foodConsumptionDto.QuantityUsed
-		_, err = s.groceryService.UpdateFoodTransaction(foodConsumptionDto.FoodId, transactionDto, userId)
+		_, err = s.groceryService.UpdateFoodTransaction(foodConsumptionDto.FoodId, transactionDto, token)
 		if err != nil {
 			return dto.FoodConsumptionDto{}, err
 		}
@@ -68,7 +68,7 @@ func (s FoodConsumptionService) CreateFoodConsumptionForMeal(mealId uuid.UUID, f
 	if foodConsumption.FoodId != uuid.Nil && foodConsumption.TransactionId != uuid.Nil {
 		if err != nil {
 			transactionDto.AvailableQuantity += foodConsumptionDto.QuantityUsed
-			_, err = s.groceryService.UpdateFoodTransaction(foodConsumptionDto.FoodId, transactionDto, userId)
+			_, err = s.groceryService.UpdateFoodTransaction(foodConsumptionDto.FoodId, transactionDto, token)
 			if err != nil {
 				return dto.FoodConsumptionDto{}, err
 			}
@@ -84,7 +84,7 @@ func (s FoodConsumptionService) CreateFoodConsumptionForMeal(mealId uuid.UUID, f
 	return foodConsumptionDto, nil
 }
 
-func (s FoodConsumptionService) UpdateFoodConsumptionForMeal(mealId uuid.UUID, foodConsumptionDto dto.FoodConsumptionDto, userId string) (dto.FoodConsumptionDto, error) {
+func (s FoodConsumptionService) UpdateFoodConsumptionForMeal(mealId uuid.UUID, foodConsumptionDto dto.FoodConsumptionDto, token string) (dto.FoodConsumptionDto, error) {
 	foodConsumption := model.FoodConsumption{}
 	mappedField := smapping.MapFields(&foodConsumptionDto)
 	err := smapping.FillStruct(&foodConsumption, mappedField)
@@ -102,12 +102,12 @@ func (s FoodConsumptionService) UpdateFoodConsumptionForMeal(mealId uuid.UUID, f
 			return dto.FoodConsumptionDto{}, err
 		}
 		deltaQuantity = foodConsumptionDto.QuantityUsed - prevConsumption.QuantityUsed
-		transactionDto, err = s.groceryService.GetTransactionDetail(foodConsumptionDto.FoodId, foodConsumptionDto.TransactionId, userId)
+		transactionDto, err = s.groceryService.GetTransactionDetail(foodConsumptionDto.FoodId, foodConsumptionDto.TransactionId, token)
 		if err != nil {
 			return dto.FoodConsumptionDto{}, err
 		}
 		transactionDto.AvailableQuantity += deltaQuantity
-		_, err = s.groceryService.UpdateFoodTransaction(foodConsumptionDto.FoodId, transactionDto, userId)
+		_, err = s.groceryService.UpdateFoodTransaction(foodConsumptionDto.FoodId, transactionDto, token)
 		if err != nil {
 			return dto.FoodConsumptionDto{}, err
 		}
@@ -119,7 +119,7 @@ func (s FoodConsumptionService) UpdateFoodConsumptionForMeal(mealId uuid.UUID, f
 	if foodConsumption.FoodId != uuid.Nil && foodConsumption.TransactionId != uuid.Nil {
 		if err != nil {
 			transactionDto.AvailableQuantity -= deltaQuantity
-			_, err = s.groceryService.UpdateFoodTransaction(foodConsumptionDto.FoodId, transactionDto, userId)
+			_, err = s.groceryService.UpdateFoodTransaction(foodConsumptionDto.FoodId, transactionDto, token)
 			if err != nil {
 				return dto.FoodConsumptionDto{}, err
 			}
@@ -135,7 +135,7 @@ func (s FoodConsumptionService) UpdateFoodConsumptionForMeal(mealId uuid.UUID, f
 	return foodConsumptionDto, nil
 }
 
-func (s FoodConsumptionService) DeleteFoodConsumptionForMeal(mealId uuid.UUID, foodConsumptionId uuid.UUID, userId string) error {
+func (s FoodConsumptionService) DeleteFoodConsumptionForMeal(mealId uuid.UUID, foodConsumptionId uuid.UUID, token string) error {
 	foodConsumption, err := s.repository.FindById(foodConsumptionId)
 	if err != nil {
 		return err
@@ -143,12 +143,12 @@ func (s FoodConsumptionService) DeleteFoodConsumptionForMeal(mealId uuid.UUID, f
 
 	var transactionDto dto.FoodTransactionDto
 	if foodConsumption.FoodId != uuid.Nil && foodConsumption.TransactionId != uuid.Nil {
-		transactionDto, err = s.groceryService.GetTransactionDetail(foodConsumption.FoodId, foodConsumption.TransactionId, userId)
+		transactionDto, err = s.groceryService.GetTransactionDetail(foodConsumption.FoodId, foodConsumption.TransactionId, token)
 		if err != nil {
 			return err
 		}
 		transactionDto.AvailableQuantity += foodConsumption.QuantityUsed
-		_, err = s.groceryService.UpdateFoodTransaction(foodConsumption.FoodId, transactionDto, userId)
+		_, err = s.groceryService.UpdateFoodTransaction(foodConsumption.FoodId, transactionDto, token)
 		if err != nil {
 			return err
 		}
@@ -159,7 +159,7 @@ func (s FoodConsumptionService) DeleteFoodConsumptionForMeal(mealId uuid.UUID, f
 	if foodConsumption.FoodId != uuid.Nil && foodConsumption.TransactionId != uuid.Nil {
 		if err != nil {
 			transactionDto.AvailableQuantity -= foodConsumption.QuantityUsed
-			_, err = s.groceryService.UpdateFoodTransaction(foodConsumption.FoodId, transactionDto, userId)
+			_, err = s.groceryService.UpdateFoodTransaction(foodConsumption.FoodId, transactionDto, token)
 			if err != nil {
 				return err
 			}
