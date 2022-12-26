@@ -7,6 +7,7 @@ import (
 	"food-track-be/service"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"log"
 	"strings"
 	"time"
 )
@@ -180,6 +181,7 @@ func (s *MealController) GetMealStatistics(c *gin.Context) {
 }
 
 func (s *MealController) abortWithMessage(c *gin.Context, message string) {
+	log.Println(message)
 	c.AbortWithStatusJSON(200, dto.BaseResponse[any]{
 		ErrorMessage: message,
 	})

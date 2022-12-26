@@ -7,6 +7,7 @@ import (
 	"food-track-be/service"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"log"
 	"strings"
 )
 
@@ -113,6 +114,7 @@ func (s *FoodConsumptionController) DeleteFoodConsumption(c *gin.Context) {
 }
 
 func (s *FoodConsumptionController) abortWithMessage(c *gin.Context, message string) {
+	log.Println(message)
 	c.AbortWithStatusJSON(200, dto.BaseResponse[any]{
 		ErrorMessage: message,
 	})
