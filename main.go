@@ -14,6 +14,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -21,12 +22,19 @@ import (
 
 func main() {
 
+	dbHost := os.Getenv("DB_HOST")
+	dbPort := os.Getenv("DB_PORT")
+	dbUser := os.Getenv("DB_USER")
+	dbPassword := os.Getenv("DB_PASSWORD")
+	dbName := os.Getenv("DB_NAME")
+	dbTimeout, _ := strconv.ParseInt(os.Getenv("DB_TIMEOUT"), 10, 64)
+
 	pgconn := pgdriver.NewConnector(
-		pgdriver.WithAddr(os.Getenv("DB_HOST")+":"+os.Getenv("DB_PORT")),
-		pgdriver.WithUser(os.Getenv("DB_USER")),
-		pgdriver.WithPassword(os.Getenv("DB_PASSWORD")),
-		pgdriver.WithDatabase(os.Getenv("DB_NAME")),
-		pgdriver.WithTimeout(1*time.Second),
+		pgdriver.WithAddr(dbHost+":"+dbPort),
+		pgdriver.WithUser(dbUser),
+		pgdriver.WithPassword(dbPassword),
+		pgdriver.WithDatabase(dbName),
+		pgdriver.WithTimeout(time.Duration(dbTimeout)*time.Second),
 	)
 	sqldb := sql.OpenDB(pgconn)
 
