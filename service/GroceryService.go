@@ -108,7 +108,7 @@ func (s *GroceryService) GetTransactionDetail(foodId uuid.UUID, transactionId uu
 
 func (s *GroceryService) UpdateFoodTransaction(foodId uuid.UUID, foodTransactionDto dto.FoodTransactionDto, token string) (dto.FoodTransactionDto, error) {
 	var response dto.BaseResponse[dto.FoodTransactionDto]
-	result, err := s.patchCall(s.baseUrl+"/api/item/"+foodId.String()+"/transaction/", foodTransactionDto, token)
+	result, err := s.patchCall(s.baseUrl+"/api/item/"+foodId.String()+"/transaction", foodTransactionDto, token)
 	if err != nil {
 		return dto.FoodTransactionDto{}, err
 	}
