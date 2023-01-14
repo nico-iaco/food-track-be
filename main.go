@@ -69,6 +69,7 @@ func main() {
 	r := gin.Default()
 	corsConfig := cors.DefaultConfig()
 	corsConfig.AllowAllOrigins = true
+	corsConfig.AllowHeaders = append(corsConfig.AllowHeaders, "Authorization")
 	//corsConfig.AllowHeaders = append(corsConfig.AllowHeaders, "iv-user")
 	r.Use(cors.New(corsConfig))
 
