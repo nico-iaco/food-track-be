@@ -1,0 +1,26 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title Find meal
+
+actor User as user
+
+user -> MealController : GET /api/meal/:mealId/
+activate MealController
+
+MealController -> MealService : findById(mealId)
+activate MealService
+
+MealService -> MealRepository : findByIdAndUserId(mealId, userId)
+activate MealRepository
+
+MealRepository --> MealService : Meal
+deactivate MealRepository
+
+MealService --> MealController : MealDto
+deactivate MealService
+
+MealController --> user : BaseResponse<MealDto>
+deactivate MealController
+
+@enduml

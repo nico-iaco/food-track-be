@@ -3,6 +3,15 @@ name: Build and Push Image to Google Cloud Platform
 on:
   push:
     branches: [ master ]
+    paths-ignore:
+      - 'k8s/**'
+      - 'docs/**'
+      - 'README.md'
+      - 'LICENSE'
+      - 'CHANGELOG.md'
+      - 'CODE_OF_CONDUCT.md'
+      - 'CONTRIBUTING.md'
+      - 'SECURITY.md'
 jobs:
   build-push-gcr:
     name: Build and Push to GCP

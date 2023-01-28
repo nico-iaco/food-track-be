@@ -104,12 +104,14 @@ func (s *MealController) CreateMeal(c *gin.Context) {
 
 func (s *MealController) UpdateMeal(c *gin.Context) {
 	var mealDto dto.MealDto
+	id, _ := uuid.Parse(c.Param("mealId"))
 	err := c.BindJSON(&mealDto)
 	userId, err := s.validateTokenAndGetUserId(c.GetHeader("Authorization"))
 	if err != nil {
 		s.abortWithMessage(c, err.Error())
 		return
 	}
+	mealDto.ID = id
 	mealDto, err = s.mealService.Update(mealDto, userId)
 	if err != nil {
 		s.abortWithMessage(c, err.Error())

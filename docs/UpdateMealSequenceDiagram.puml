@@ -1,0 +1,26 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title Update meal
+
+actor User as user
+
+user -> MealController : PATCH /api/meal/:mealId/
+activate MealController
+
+MealController -> MealService : updateMeal(mealDto, userId)
+activate MealService
+
+MealService -> MealRepository : update(meal, userId)
+activate MealRepository
+
+MealRepository --> MealService : Meal updated
+deactivate MealRepository
+
+MealService --> MealController : MealDto updated
+deactivate MealService
+
+MealController --> user : BaseResponse<MealDto>
+deactivate MealController
+
+@enduml

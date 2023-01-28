@@ -1,0 +1,26 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title Delete meal
+
+actor User as user
+
+user -> MealController : DELETE /api/meal/:mealId/
+activate MealController
+
+MealController -> MealService : deleteMeal(mealId, userId)
+activate MealService
+
+MealService -> MealRepository : deleteMeal(mealId, userId)
+activate MealRepository
+
+MealRepository --> MealService : true / false
+deactivate MealRepository
+
+MealService --> MealController : true / false
+deactivate MealService
+
+MealController --> user : BaseResponse<Boolean> with true / false body
+deactivate MealController
+
+@enduml

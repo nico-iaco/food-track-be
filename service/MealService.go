@@ -119,13 +119,16 @@ func (s *MealService) Create(mealDto dto.MealDto) (dto.MealDto, error) {
 }
 
 func (s *MealService) Update(mealDto dto.MealDto, userId string) (dto.MealDto, error) {
-	meal := model.Meal{}
-	mappedField := smapping.MapFields(&mealDto)
-	err := smapping.FillStruct(&meal, mappedField)
+	meal, err := s.repository.FindByIdAndUserId(mealDto.ID, userId)
 	if err != nil {
 		return mealDto, err
 	}
-	_, err = s.repository.Update(&meal, userId)
+	mappedField := smapping.MapFields(&mealDto)
+	err = smapping.FillStruct(&meal, mappedField)
+	if err != nil {
+		return mealDto, err
+	}
+	_, err = s.repository.Update(meal, userId)
 	if err != nil {
 		return dto.MealDto{}, err
 	}

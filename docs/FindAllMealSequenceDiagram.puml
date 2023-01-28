@@ -1,0 +1,26 @@
+@startuml
+'https://plantuml.com/use-case-diagram
+
+title Find Meals
+
+actor "User" as user
+
+user -> MealController : GET /api/meal
+activate MealController
+
+MealController -> MealService : findAllMeals() or findMealsInDateRange(startDate, endDate)
+activate MealService
+
+MealService -> MealRepository : findAll() or GetMealInDateRange(startDate, endDate)
+activate MealRepository
+
+MealRepository --> MealService : List<Meal>
+deactivate MealRepository
+
+MealService --> MealController : List<MealDto>
+deactivate MealService
+
+MealController --> user : BaseResponse<List<MealDto>>
+deactivate MealController
+
+@enduml

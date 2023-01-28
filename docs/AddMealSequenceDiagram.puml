@@ -1,0 +1,26 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+title Add meal
+
+actor "User" as user
+
+user -> MealController : POST /api/meal
+activate MealController
+
+MealController -> MealService : create(mealDto)
+activate MealService
+
+MealService -> MealRepository : create(meal)
+activate MealRepository
+
+MealRepository --> MealService : Meal
+deactivate MealRepository
+
+MealService --> MealController : MealDto
+deactivate MealService
+
+MealController --> user : BaseResponse<MealDto>
+deactivate MealController
+
+
+@enduml
