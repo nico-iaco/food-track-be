@@ -55,11 +55,11 @@ func (s *GroceryService) patchCall(url string, body any, token string) ([]byte, 
 	var buf bytes.Buffer
 	err := json.NewEncoder(&buf).Encode(body)
 	request, err := http.NewRequest(http.MethodPatch, url, &buf)
-	request.Header.Add("Content-Type", "application/json")
-	request.Header.Add("Authorization", "Bearer "+token)
 	if err != nil {
 		return nil, err
 	}
+	request.Header.Add("Content-Type", "application/json")
+	request.Header.Add("Authorization", "Bearer "+token)
 	response, err := http.DefaultClient.Do(request)
 	if err != nil {
 		return nil, err

@@ -34,11 +34,11 @@ func main() {
 		pgdriver.WithUser(dbUser),
 		pgdriver.WithPassword(dbPassword),
 		pgdriver.WithDatabase(dbName),
-		pgdriver.WithTimeout(time.Duration(dbTimeout)*time.Second),
 	)
 	sqldb := sql.OpenDB(pgconn)
 
 	db := bun.NewDB(sqldb, pgdialect.New())
+	db.SetConnMaxIdleTime(time.Duration(dbTimeout) * time.Second)
 
 	defer func(db *bun.DB) {
 		err := db.Close()
