@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/sony/gobreaker"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -108,6 +109,7 @@ func (s *GroceryService) GetTransactionDetail(foodId uuid.UUID, transactionId uu
 
 func (s *GroceryService) UpdateFoodTransaction(foodId uuid.UUID, foodTransactionDto dto.FoodTransactionDto, token string) (dto.FoodTransactionDto, error) {
 	var response dto.BaseResponse[dto.FoodTransactionDto]
+	log.Println("Updating food transaction with id: ", foodTransactionDto.ID.String(), " for food with id: ", foodId.String(), " with body: ", foodTransactionDto)
 	result, err := s.patchCall(s.baseUrl+"/api/item/"+foodId.String()+"/transaction", foodTransactionDto, token)
 	if err != nil {
 		return dto.FoodTransactionDto{}, err

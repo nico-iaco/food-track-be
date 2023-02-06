@@ -53,18 +53,16 @@ func (s FoodConsumptionService) CreateFoodConsumptionForMeal(mealId uuid.UUID, f
 			return dto.FoodConsumptionDto{}, err
 		}
 		foodConsumption.Cost = (transactionDto.Price / transactionDto.Quantity) * foodConsumptionDto.QuantityUsed
+		defer func() {
+			if err != nil {
+				transactionDto.AvailableQuantity -= foodConsumptionDto.QuantityUsed
+				_, err = s.groceryService.UpdateFoodTransaction(foodConsumptionDto.FoodId, transactionDto, token)
+				println(err)
+			}
+		}()
 	}
 
 	_, err = s.repository.Create(&foodConsumption)
-
-	if foodConsumption.FoodId != uuid.Nil && foodConsumption.TransactionId != uuid.Nil {
-		if err != nil {
-			transactionDto.AvailableQuantity -= foodConsumptionDto.QuantityUsed
-			_, err = s.groceryService.UpdateFoodTransaction(foodConsumptionDto.FoodId, transactionDto, token)
-			println(err)
-			return dto.FoodConsumptionDto{}, err
-		}
-	}
 
 	foodConsumptionDto, err = s.mapMealConsumptionToDto(&foodConsumption)
 	if err != nil {
