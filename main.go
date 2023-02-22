@@ -8,6 +8,8 @@ import (
 	"food-track-be/repository"
 	"food-track-be/service"
 	"github.com/gin-contrib/cors"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/pgdialect"
 	"github.com/uptrace/bun/driver/pgdriver"
@@ -18,8 +20,22 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+
+	_ "food-track-be/docs"
 )
 
+//	@title			Food track be API
+//	@version		1.0
+//	@description	This is a sample server celler server.
+
+//	@contact.name	Nicola Iacovelli
+//	@contact.email	nicolaiacovelli98@gmail.com
+
+//	@host		localhost:8080
+//	@BasePath	/api/meal
+
+//	@externalDocs.description	OpenAPI
+//	@externalDocs.url			https://swagger.io/resources/open-api/
 func main() {
 
 	dbHost := os.Getenv("DB_HOST")
@@ -73,17 +89,22 @@ func main() {
 	//corsConfig.AllowHeaders = append(corsConfig.AllowHeaders, "iv-user")
 	r.Use(cors.New(corsConfig))
 
-	r.GET("/api/meal/", mc.FindAllMeals)
-	r.GET("/api/meal/:mealId/", mc.FindMealById)
-	r.POST("/api/meal/", mc.CreateMeal)
-	r.PATCH("/api/meal/:mealId/", mc.UpdateMeal)
-	r.DELETE("/api/meal/:mealId/", mc.DeleteMeal)
-	r.GET("/api/meal/statistics/", mc.GetMealStatistics)
+	mealApi := r.Group("/api/meal")
+	{
+		mealApi.GET("/", mc.FindAllMeals)
+		mealApi.GET(":mealId/", mc.FindMealById)
+		mealApi.POST("/", mc.CreateMeal)
+		mealApi.PATCH(":mealId/", mc.UpdateMeal)
+		mealApi.DELETE(":mealId/", mc.DeleteMeal)
+		mealApi.GET("/statistics/", mc.GetMealStatistics)
 
-	r.GET("/api/meal/:mealId/consumption/", fcc.FindAllConsumptionForMeal)
-	r.POST("/api/meal/:mealId/consumption/", fcc.AddFoodConsumption)
-	r.PATCH("/api/meal/:mealId/consumption/:consumptionId/", fcc.UpdateFoodConsumption)
-	r.DELETE("/api/meal/:mealId/consumption/:foodConsumptionId/", fcc.DeleteFoodConsumption)
+		mealApi.GET(":mealId/consumption/", fcc.FindAllConsumptionForMeal)
+		mealApi.POST(":mealId/consumption/", fcc.AddFoodConsumption)
+		mealApi.PATCH(":mealId/consumption/:consumptionId/", fcc.UpdateFoodConsumption)
+		mealApi.DELETE(":mealId/consumption/:foodConsumptionId/", fcc.DeleteFoodConsumption)
+	}
+
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{

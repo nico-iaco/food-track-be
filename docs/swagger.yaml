@@ -1,0 +1,375 @@
+basePath: /api/meal
+definitions:
+  dto.AvgKcalPerMealTypeDto:
+    properties:
+      avgKcal:
+        type: number
+      mealType:
+        type: string
+    type: object
+  dto.BaseResponse-array_dto_FoodConsumptionDto:
+    properties:
+      body:
+        items:
+          $ref: '#/definitions/dto.FoodConsumptionDto'
+        type: array
+      errorMessage:
+        type: string
+    type: object
+  dto.BaseResponse-array_dto_MealDto:
+    properties:
+      body:
+        items:
+          $ref: '#/definitions/dto.MealDto'
+        type: array
+      errorMessage:
+        type: string
+    type: object
+  dto.BaseResponse-bool:
+    properties:
+      body:
+        type: boolean
+      errorMessage:
+        type: string
+    type: object
+  dto.BaseResponse-dto_FoodConsumptionDto:
+    properties:
+      body:
+        $ref: '#/definitions/dto.FoodConsumptionDto'
+      errorMessage:
+        type: string
+    type: object
+  dto.BaseResponse-dto_MealDto:
+    properties:
+      body:
+        $ref: '#/definitions/dto.MealDto'
+      errorMessage:
+        type: string
+    type: object
+  dto.BaseResponse-dto_MealStatisticsDto:
+    properties:
+      body:
+        $ref: '#/definitions/dto.MealStatisticsDto'
+      errorMessage:
+        type: string
+    type: object
+  dto.FoodConsumptionDto:
+    properties:
+      cost:
+        type: number
+      foodId:
+        type: string
+      foodName:
+        type: string
+      id:
+        type: string
+      kcal:
+        type: number
+      mealId:
+        type: string
+      quantityUsed:
+        type: number
+      quantityUsedStd:
+        type: number
+      transactionId:
+        type: string
+      unit:
+        type: string
+    type: object
+  dto.MealDto:
+    properties:
+      cost:
+        type: number
+      date:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      kcal:
+        type: number
+      mealType:
+        $ref: '#/definitions/model.MealType'
+      name:
+        type: string
+      userId:
+        type: string
+    type: object
+  dto.MealStatisticsDto:
+    properties:
+      averageWeekCalories:
+        type: number
+      averageWeekCaloriesPerMealType:
+        items:
+          $ref: '#/definitions/dto.AvgKcalPerMealTypeDto'
+        type: array
+      averageWeekFoodCost:
+        type: number
+      mostConsumedFood:
+        $ref: '#/definitions/dto.MostConsumedFoodDto'
+      sumWeekFoodCost:
+        type: number
+    type: object
+  dto.MostConsumedFoodDto:
+    properties:
+      foodId:
+        type: string
+      foodName:
+        type: string
+      quantityUsed:
+        type: number
+      quantityUsedStd:
+        type: number
+      unit:
+        type: string
+    type: object
+  model.MealType:
+    enum:
+    - breakfast
+    - lunch
+    - dinner
+    - others
+    type: string
+    x-enum-varnames:
+    - Breakfast
+    - Lunch
+    - Dinner
+    - Others
+host: localhost:8080
+info:
+  contact:
+    email: nicolaiacovelli98@gmail.com
+    name: Nicola Iacovelli
+  description: This is a sample server celler server.
+  title: Food track be API
+  version: "1.0"
+paths:
+  /:
+    get:
+      description: get all the meals which satisfies the query parameters (startRange,
+        endRange) or all meals if no query parameters are provided
+      parameters:
+      - description: Start date of the range
+        in: query
+        name: startRange
+        type: string
+      - description: End date of the range
+        in: query
+        name: endRange
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse-array_dto_MealDto'
+      summary: Get all meals
+      tags:
+      - meal
+    post:
+      consumes:
+      - application/json
+      description: create a new meal
+      parameters:
+      - description: Meal to create
+        in: body
+        name: mealDto
+        required: true
+        schema:
+          $ref: '#/definitions/dto.MealDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse-dto_MealDto'
+      summary: Create meal
+      tags:
+      - meal
+  /{mealId}/:
+    delete:
+      consumes:
+      - application/json
+      description: delete the meal with the provided id
+      parameters:
+      - description: Meal ID
+        in: path
+        name: mealId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse-bool'
+      summary: Delete meal
+      tags:
+      - meal
+    get:
+      description: get the meal with the provided id
+      parameters:
+      - description: Meal ID
+        in: path
+        name: mealId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse-dto_MealDto'
+      summary: Get meal
+      tags:
+      - meal
+    patch:
+      consumes:
+      - application/json
+      description: update the meal with the provided id
+      parameters:
+      - description: Meal ID
+        in: path
+        name: mealId
+        required: true
+        type: string
+      - description: Meal to create
+        in: body
+        name: mealDto
+        required: true
+        schema:
+          $ref: '#/definitions/dto.MealDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse-dto_MealDto'
+      summary: Update meal
+      tags:
+      - meal
+  /{mealId}/consumption/:
+    delete:
+      consumes:
+      - application/json
+      description: delete consumption for the meal by mealId
+      parameters:
+      - description: Meal ID
+        in: path
+        name: mealId
+        required: true
+        type: string
+      - description: Food consumption ID
+        in: path
+        name: foodConsumptionId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse-bool'
+      summary: Delete consumption for the meal
+      tags:
+      - food-consumption
+    get:
+      description: find all the consumption for the meal by mealId
+      parameters:
+      - description: Meal ID
+        in: path
+        name: mealId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse-array_dto_FoodConsumptionDto'
+      summary: Get all consumption for the meal
+      tags:
+      - food-consumption
+    patch:
+      consumes:
+      - application/json
+      description: update consumption for the meal by mealId
+      parameters:
+      - description: Meal ID
+        in: path
+        name: mealId
+        required: true
+        type: string
+      - description: Food Consumption
+        in: body
+        name: foodConsumptionDto
+        required: true
+        schema:
+          $ref: '#/definitions/dto.FoodConsumptionDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse-dto_FoodConsumptionDto'
+      summary: Update consumption for the meal
+      tags:
+      - food-consumption
+    post:
+      consumes:
+      - application/json
+      description: add consumption for the meal by mealId
+      parameters:
+      - description: Meal ID
+        in: path
+        name: mealId
+        required: true
+        type: string
+      - description: Food Consumption
+        in: body
+        name: foodConsumptionDto
+        required: true
+        schema:
+          $ref: '#/definitions/dto.FoodConsumptionDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse-dto_FoodConsumptionDto'
+      summary: Add consumption for the meal
+      tags:
+      - food-consumption
+  /statistics/:
+    get:
+      description: get the meal statistics for the provided date range (default is
+        the past week)
+      parameters:
+      - description: Start date of the range
+        in: query
+        name: startRange
+        type: string
+      - description: End date of the range
+        in: query
+        name: endRange
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse-dto_MealStatisticsDto'
+      summary: Get meal statistics
+      tags:
+      - meal
+swagger: "2.0"

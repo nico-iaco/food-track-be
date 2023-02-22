@@ -21,6 +21,15 @@ func NewMealController(mealService *service.MealService, fa *firebase.App) *Meal
 	return &MealController{mealService: mealService, firebaseApp: fa}
 }
 
+// FindAllMeals godoc
+//	@Summary		Get all meals
+//	@Description	get all the meals which satisfies the query parameters (startRange, endRange) or all meals if no query parameters are provided
+//	@Tags			meal
+//	@Produce		json
+//	@Param			startRange	query		string	false	"Start date of the range"
+//	@Param			endRange	query		string	false	"End date of the range"
+//	@Success		200			{object}	dto.BaseResponse[[]dto.MealDto]
+//	@Router			/ [get]
 func (s *MealController) FindAllMeals(c *gin.Context) {
 	var mealDtos = make([]dto.MealDto, 0)
 	startRangeParam := c.Query("startRange")
@@ -60,6 +69,14 @@ func (s *MealController) FindAllMeals(c *gin.Context) {
 	c.JSON(200, response)
 }
 
+// FindMealById godoc
+//	@Summary		Get meal
+//	@Description	get the meal with the provided id
+//	@Tags			meal
+//	@Produce		json
+//	@Param			mealId	path		string	true	"Meal ID"
+//	@Success		200		{object}	dto.BaseResponse[dto.MealDto]
+//	@Router			/{mealId}/ [get]
 func (s *MealController) FindMealById(c *gin.Context) {
 	id, _ := uuid.Parse(c.Param("mealId"))
 	userId, err := s.validateTokenAndGetUserId(c.GetHeader("Authorization"))
@@ -78,6 +95,15 @@ func (s *MealController) FindMealById(c *gin.Context) {
 	c.JSON(200, response)
 }
 
+// CreateMeal godoc
+//	@Summary		Create meal
+//	@Description	create a new meal
+//	@Tags			meal
+//	@Accept			json
+//	@Produce		json
+//	@Param			mealDto	body		dto.MealDto	true	"Meal to create"
+//	@Success		200		{object}	dto.BaseResponse[dto.MealDto]
+//	@Router			/ [post]
 func (s *MealController) CreateMeal(c *gin.Context) {
 	var mealDto dto.MealDto
 	err := c.BindJSON(&mealDto)
@@ -102,6 +128,16 @@ func (s *MealController) CreateMeal(c *gin.Context) {
 	c.JSON(200, response)
 }
 
+// UpdateMeal godoc
+//	@Summary		Update meal
+//	@Description	update the meal with the provided id
+//	@Tags			meal
+//	@Accept			json
+//	@Produce		json
+//	@Param			mealId	path		string		true	"Meal ID"
+//	@Param			mealDto	body		dto.MealDto	true	"Meal to create"
+//	@Success		200		{object}	dto.BaseResponse[dto.MealDto]
+//	@Router			/{mealId}/ [patch]
 func (s *MealController) UpdateMeal(c *gin.Context) {
 	var mealDto dto.MealDto
 	id, _ := uuid.Parse(c.Param("mealId"))
@@ -123,6 +159,15 @@ func (s *MealController) UpdateMeal(c *gin.Context) {
 	c.JSON(200, response)
 }
 
+// DeleteMeal godoc
+//	@Summary		Delete meal
+//	@Description	delete the meal with the provided id
+//	@Tags			meal
+//	@Accept			json
+//	@Produce		json
+//	@Param			mealId	path		string	true	"Meal ID"
+//	@Success		200		{object}	dto.BaseResponse[bool]
+//	@Router			/{mealId}/ [delete]
 func (s *MealController) DeleteMeal(c *gin.Context) {
 	id, _ := uuid.Parse(c.Param("mealId"))
 	userId, err := s.validateTokenAndGetUserId(c.GetHeader("Authorization"))
@@ -141,6 +186,15 @@ func (s *MealController) DeleteMeal(c *gin.Context) {
 	c.JSON(200, response)
 }
 
+// GetMealStatistics godoc
+//	@Summary		Get meal statistics
+//	@Description	get the meal statistics for the provided date range (default is the past week)
+//	@Tags			meal
+//	@Produce		json
+//	@Param			startRange	query		string	false	"Start date of the range"
+//	@Param			endRange	query		string	false	"End date of the range"
+//	@Success		200			{object}	dto.BaseResponse[dto.MealStatisticsDto]
+//	@Router			/statistics/ [get]
 func (s *MealController) GetMealStatistics(c *gin.Context) {
 	var mealStatisticsDto dto.MealStatisticsDto
 	startRangeParam := c.Query("startRange")

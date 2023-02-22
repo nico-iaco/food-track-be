@@ -20,6 +20,14 @@ func NewFoodConsumptionController(foodConsumptionService *service.FoodConsumptio
 	return &FoodConsumptionController{foodConsumptionService: foodConsumptionService, firebaseApp: fa}
 }
 
+// FindAllConsumptionForMeal godoc
+//	@Summary		Get all consumption for the meal
+//	@Description	find all the consumption for the meal by mealId
+//	@Tags			food-consumption
+//	@Produce		json
+//	@Param			mealId	path		string	true	"Meal ID"
+//	@Success		200		{object}	dto.BaseResponse[[]dto.FoodConsumptionDto]
+//	@Router			/{mealId}/consumption/ [get]
 func (s *FoodConsumptionController) FindAllConsumptionForMeal(c *gin.Context) {
 	_, err := s.validateTokenAndGetUserId(c.GetHeader("Authorization"))
 	if err != nil {
@@ -41,6 +49,16 @@ func (s *FoodConsumptionController) FindAllConsumptionForMeal(c *gin.Context) {
 	})
 }
 
+// AddFoodConsumption godoc
+//	@Summary		Add consumption for the meal
+//	@Description	add consumption for the meal by mealId
+//	@Tags			food-consumption
+//	@Accept			json
+//	@Produce		json
+//	@Param			mealId				path		string					true	"Meal ID"
+//	@Param			foodConsumptionDto	body		dto.FoodConsumptionDto	true	"Food Consumption"
+//	@Success		200					{object}	dto.BaseResponse[dto.FoodConsumptionDto]
+//	@Router			/{mealId}/consumption/ [post]
 func (s *FoodConsumptionController) AddFoodConsumption(c *gin.Context) {
 	mealId, err := uuid.Parse(c.Param("mealId"))
 	if err != nil {
@@ -69,6 +87,16 @@ func (s *FoodConsumptionController) AddFoodConsumption(c *gin.Context) {
 	})
 }
 
+// UpdateFoodConsumption godoc
+//	@Summary		Update consumption for the meal
+//	@Description	update consumption for the meal by mealId
+//	@Tags			food-consumption
+//	@Accept			json
+//	@Produce		json
+//	@Param			mealId				path		string					true	"Meal ID"
+//	@Param			foodConsumptionDto	body		dto.FoodConsumptionDto	true	"Food Consumption"
+//	@Success		200					{object}	dto.BaseResponse[dto.FoodConsumptionDto]
+//	@Router			/{mealId}/consumption/ [patch]
 func (s *FoodConsumptionController) UpdateFoodConsumption(c *gin.Context) {
 	mealId, err := uuid.Parse(c.Param("mealId"))
 	if err != nil {
@@ -93,6 +121,16 @@ func (s *FoodConsumptionController) UpdateFoodConsumption(c *gin.Context) {
 	})
 }
 
+// DeleteFoodConsumption godoc
+//	@Summary		Delete consumption for the meal
+//	@Description	delete consumption for the meal by mealId
+//	@Tags			food-consumption
+//	@Accept			json
+//	@Produce		json
+//	@Param			mealId				path		string	true	"Meal ID"
+//	@Param			foodConsumptionId	path		string	true	"Food consumption ID"
+//	@Success		200					{object}	dto.BaseResponse[bool]
+//	@Router			/{mealId}/consumption/ [delete]
 func (s *FoodConsumptionController) DeleteFoodConsumption(c *gin.Context) {
 	mealId, err := uuid.Parse(c.Param("mealId"))
 	foodConsumptionId, err := uuid.Parse(c.Param("foodConsumptionId"))
@@ -111,7 +149,7 @@ func (s *FoodConsumptionController) DeleteFoodConsumption(c *gin.Context) {
 		s.abortWithMessage(c, err.Error())
 		return
 	}
-	c.JSON(200, dto.BaseResponse[any]{
+	c.JSON(200, dto.BaseResponse[bool]{
 		Body: err != nil,
 	})
 }
