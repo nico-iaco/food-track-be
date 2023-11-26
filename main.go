@@ -34,10 +34,11 @@ import (
 //	@host		localhost:8080
 //	@BasePath	/api/meal
 
-//	@externalDocs.description	OpenAPI
-//	@externalDocs.url			https://swagger.io/resources/open-api/
+// @externalDocs.description	OpenAPI
+// @externalDocs.url			https://swagger.io/resources/open-api/
 func main() {
 
+	dsn := os.Getenv("DSN")
 	dbHost := os.Getenv("DB_HOST")
 	dbPort := os.Getenv("DB_PORT")
 	dbUser := os.Getenv("DB_USER")
@@ -45,12 +46,19 @@ func main() {
 	dbName := os.Getenv("DB_NAME")
 	dbTimeout, _ := strconv.ParseInt(os.Getenv("DB_TIMEOUT"), 10, 64)
 
-	pgconn := pgdriver.NewConnector(
-		pgdriver.WithAddr(dbHost+":"+dbPort),
-		pgdriver.WithUser(dbUser),
-		pgdriver.WithPassword(dbPassword),
-		pgdriver.WithDatabase(dbName),
-	)
+	var pgconn *pgdriver.Connector
+
+	if dsn != "" {
+		pgconn = pgdriver.NewConnector(pgdriver.WithDSN(dsn))
+	} else {
+		pgconn = pgdriver.NewConnector(
+			pgdriver.WithAddr(dbHost+":"+dbPort),
+			pgdriver.WithUser(dbUser),
+			pgdriver.WithPassword(dbPassword),
+			pgdriver.WithDatabase(dbName),
+		)
+	}
+
 	sqldb := sql.OpenDB(pgconn)
 
 	db := bun.NewDB(sqldb, pgdialect.New())

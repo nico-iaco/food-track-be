@@ -49,17 +49,19 @@ docker run -p 8080:8080 ghcr.io/nico-iaco/food-track-be:latest -e {ALL_ENV_VARIA
 
 ## Environment variables
 
-| Name             | Description                       | Default value |
-|------------------|-----------------------------------|---------------|
-| PORT             | Port on which the app will listen | 8080          |
-| GIN_MODE         | Release type of app               |               |
-| DB_HOST          | Database host                     |               |
-| DB_PORT          | Database port                     |               |
-| DB_NAME          | Database name                     |               |
-| DB_USER          | Database user                     |               |
-| DB_PASSWORD      | Database password                 |               |
-| GROCERY_BASE_URL | Base url for grocery-be app       |               |
-| DB_TIMEOUT       | Database connection timeout       |               |
+| Name             | Description                                         | Default value |
+|------------------|-----------------------------------------------------|---------------|
+| PORT             | Port on which the app will listen                   | 8080          |
+| GIN_MODE         | Release type of app                                 |               |
+| DB_HOST          | Database host                                       |               |
+| DB_PORT          | Database port                                       |               |
+| DB_NAME          | Database name                                       |               |
+| DB_USER          | Database user                                       |               |
+| DB_USER          | Database user                                       |               |
+| DB_PASSWORD      | Database password                                   |               |
+| DSN              | Database DSN (Alternative to DB_HOST/USER/PASSWORD) |               |
+| GROCERY_BASE_URL | Base url for grocery-be app                         |               |
+| DB_TIMEOUT       | Database connection timeout                         |               |
 
 ## Database
 
