@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"food-track-be/model/dto"
 	"github.com/google/uuid"
 	"github.com/sony/gobreaker"
@@ -68,16 +69,18 @@ func (s *GroceryService) patchCall(url string, body any, token string) ([]byte, 
 	return io.ReadAll(response.Body)
 }
 
-func (s *GroceryService) GetAllAvailableFood(token string) ([]*dto.FoodAvailableDto, error) {
+func (s *GroceryService) GetAllAvailableFood(token string, pantryId string) ([]*dto.FoodAvailableDto, error) {
 	var response dto.BaseResponse[[]*dto.FoodAvailableDto]
-	responseData, err := s.getCall(s.baseUrl+"/api/item/", token)
+	responseData, err := s.getCall(s.baseUrl+"/api/item/?pantryId="+pantryId, token)
 	if err != nil {
 		return nil, err
 	}
 	err = json.Unmarshal(responseData, &response)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to unmarshal response: %w", err)
 	}
+
+	// Return the list of available food items
 	return response.Body, nil
 }
 
@@ -89,7 +92,7 @@ func (s *GroceryService) GetAvailableTransactionForFood(foodId uuid.UUID, token 
 	}
 	err = json.Unmarshal(responseData, &response)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to unmarshal response: %w", err)
 	}
 	return response.Body, nil
 }
@@ -98,11 +101,11 @@ func (s *GroceryService) GetTransactionDetail(foodId uuid.UUID, transactionId uu
 	var response dto.BaseResponse[dto.FoodTransactionDto]
 	responseData, err := s.getCall(s.baseUrl+"/api/item/"+foodId.String()+"/transaction/"+transactionId.String(), token)
 	if err != nil {
-		return dto.FoodTransactionDto{}, err
+		return dto.FoodTransactionDto{}, fmt.Errorf("failed to get transaction details: %w", err)
 	}
 	err = json.Unmarshal(responseData, &response)
 	if err != nil {
-		return dto.FoodTransactionDto{}, err
+		return dto.FoodTransactionDto{}, fmt.Errorf("failed to unmarshal response: %w", err)
 	}
 	return response.Body, nil
 }
@@ -112,11 +115,11 @@ func (s *GroceryService) UpdateFoodTransaction(foodId uuid.UUID, foodTransaction
 	log.Println("Updating food transaction with id: ", foodTransactionDto.ID.String(), " for food with id: ", foodId.String(), " with body: ", foodTransactionDto)
 	result, err := s.patchCall(s.baseUrl+"/api/item/"+foodId.String()+"/transaction", foodTransactionDto, token)
 	if err != nil {
-		return dto.FoodTransactionDto{}, err
+		return dto.FoodTransactionDto{}, fmt.Errorf("failed to update food transaction: %w", err)
 	}
 	err = json.Unmarshal(result, &response)
 	if err != nil {
-		return dto.FoodTransactionDto{}, err
+		return dto.FoodTransactionDto{}, fmt.Errorf("failed to unmarshal response: %w", err)
 	}
 	if response.ErrorMessage != "" {
 		return dto.FoodTransactionDto{}, errors.New(response.ErrorMessage)

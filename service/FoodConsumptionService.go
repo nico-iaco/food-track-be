@@ -19,12 +19,18 @@ func NewFoodConsumptionService(repository *repository.FoodConsumptionRepository,
 	return &FoodConsumptionService{repository: repository, groceryService: groceryService}
 }
 
+// FindAllFoodConsumptionForMeal retrieves all food consumptions for a given meal ID
 func (s FoodConsumptionService) FindAllFoodConsumptionForMeal(mealId uuid.UUID) ([]*dto.FoodConsumptionDto, error) {
+	// Initialize an empty slice to hold the DTOs
 	var foodConsumptionsDto []*dto.FoodConsumptionDto
+
+	// Retrieve food consumptions from the repository
 	foodConsumptions, err := s.repository.FindAllFoodConsumptionForMeal(mealId)
 	if err != nil {
 		return nil, err
 	}
+
+	// Map and convert each food consumption to DTO
 	for _, foodConsumption := range foodConsumptions {
 		foodConsumptionDto, err := s.mapMealConsumptionToDto(foodConsumption)
 		if err != nil {
@@ -32,6 +38,8 @@ func (s FoodConsumptionService) FindAllFoodConsumptionForMeal(mealId uuid.UUID) 
 		}
 		foodConsumptionsDto = append(foodConsumptionsDto, &foodConsumptionDto)
 	}
+
+	// Return the list of DTOs
 	return foodConsumptionsDto, nil
 }
 
@@ -80,6 +88,7 @@ func (s FoodConsumptionService) UpdateFoodConsumptionForMeal(mealId uuid.UUID, f
 		return foodConsumptionDto, err
 	}
 
+	// Initialize variables for handling grocery transactions
 	var transactionDto dto.FoodTransactionDto
 	if foodConsumption.FoodId != uuid.Nil && foodConsumption.TransactionId != uuid.Nil {
 		transactionDto, err := s.groceryService.GetTransactionDetail(foodConsumptionDto.FoodId, foodConsumptionDto.TransactionId, token)
