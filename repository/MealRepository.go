@@ -31,6 +31,11 @@ func (r *MealRepository) FindByIdAndUserId(id uuid.UUID, userId string) (*model.
 	return &meal, err
 }
 
+// Create creates a new meal record in the database.
+//
+// It takes a `*model.Meal` object as an argument and returns a `sql.Result` object, or an error if something goes wrong.
+//
+// The `sql.Result` object contains information about the operation that was performed, such as the number of rows affected.
 func (r *MealRepository) Create(meal *model.Meal) (sql.Result, error) {
 	return r.db.NewInsert().Model(meal).Exec(r.ctx)
 }

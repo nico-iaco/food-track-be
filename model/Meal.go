@@ -12,7 +12,7 @@ type Meal struct {
 	UserId           string             `bun:"type:varchar(255),notnull"`
 	Name             string             `bun:"type:varchar(255),notnull"`
 	Description      string             `bun:"type:varchar(255),nullzero"`
-	MealType         MealType           `bun:"type:varchar(255),notnull"`
+	MealType         MealType           `bun:"type:varchar(30),notnull"`
 	Date             time.Time          `bun:"type:timestamp,notnull"`
 	FoodConsumptions []*FoodConsumption `bun:"rel:has-many,join:id=meal_id"`
 	//FoodTypes        []FoodType         `bun:"type:varchar(255)[]"`

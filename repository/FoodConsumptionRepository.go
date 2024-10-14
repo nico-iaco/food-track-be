@@ -65,7 +65,6 @@ func (r *FoodConsumptionRepository) Create(foodConsumption *model.FoodConsumptio
 	return r.db.NewInsert().Model(foodConsumption).Exec(r.ctx)
 }
 
-// Update updates an existing food consumption record in the database.
 func (r *FoodConsumptionRepository) Update(foodConsumption *model.FoodConsumption) (sql.Result, error) {
 	// Execute an UPDATE statement to update the food consumption record with the specified ID in the database.
 	// The result will be stored in a sql.Result value.
