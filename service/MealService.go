@@ -4,9 +4,9 @@ import (
 	"food-track-be/model"
 	"food-track-be/model/dto"
 	"food-track-be/repository"
+	"github.com/apsystole/log"
 	"github.com/google/uuid"
 	"github.com/mashingan/smapping"
-	"log"
 	"time"
 )
 
@@ -23,7 +23,7 @@ func (s *MealService) FindAll(userId string) ([]dto.MealDto, error) {
 	var mealsDto []dto.MealDto
 	meals, err := s.repository.FindAll(userId)
 	if err != nil {
-		log.Println(err)
+		log.Errorln(err.Error())
 		return nil, err
 	}
 	for _, meal := range meals {
@@ -40,7 +40,7 @@ func (s *MealService) FindAllInDateRange(startRange time.Time, endRange time.Tim
 	var mealsDto []dto.MealDto
 	meals, err := s.repository.GetMealInDateRange(startRange, endRange, userId)
 	if err != nil {
-		log.Println(err)
+		log.Errorln(err.Error())
 		return nil, err
 	}
 	for _, meal := range meals {
@@ -56,7 +56,7 @@ func (s *MealService) FindAllInDateRange(startRange time.Time, endRange time.Tim
 func (s *MealService) FindById(id uuid.UUID, userId string) (dto.MealDto, error) {
 	meal, err := s.repository.FindByIdAndUserId(id, userId)
 	if err != nil {
-		log.Println(err)
+		log.Errorln(err.Error())
 		return dto.MealDto{}, err
 	}
 	mealDto, err := s.mapMealToDto(meal)
@@ -71,13 +71,13 @@ func (s *MealService) Create(mealDto dto.MealDto) (dto.MealDto, error) {
 	mappedField := smapping.MapFields(&mealDto)
 	err := smapping.FillStruct(&meal, mappedField)
 	if err != nil {
-		log.Println(err)
+		log.Errorln(err.Error())
 		return mealDto, err
 	}
 	meal.ID = uuid.New()
 	_, err = s.repository.Create(&meal)
 	if err != nil {
-		log.Println(err)
+		log.Errorln(err.Error())
 		return dto.MealDto{}, err
 	}
 	mappedField = smapping.MapFields(&meal)
@@ -116,7 +116,7 @@ func (s *MealService) Delete(mealId uuid.UUID, userId string) error {
 	}
 	_, err = s.repository.Delete(meal, userId)
 	if err != nil {
-		log.Println(err)
+		log.Errorln(err.Error())
 		return err
 	}
 	return nil
@@ -161,17 +161,17 @@ func (s *MealService) mapMealToDto(meal *model.Meal) (dto.MealDto, error) {
 	mealDto := dto.MealDto{}
 	err := smapping.FillStruct(&mealDto, smapping.MapFields(&meal))
 	if err != nil {
-		log.Println(err)
+		log.Errorln(err.Error())
 		return dto.MealDto{}, err
 	}
 	mealDto.Kcal, err = s.foodConsumptionService.GetKcalSumForMeal(meal.ID)
 	if err != nil {
-		log.Println(err)
+		log.Errorln(err.Error())
 		return dto.MealDto{}, err
 	}
 	mealDto.Cost, err = s.foodConsumptionService.GetCostSumForMeal(meal.ID)
 	if err != nil {
-		log.Println(err)
+		log.Errorln(err.Error())
 		return dto.MealDto{}, err
 	}
 	return mealDto, nil

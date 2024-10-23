@@ -4,9 +4,9 @@ import (
 	"food-track-be/model"
 	"food-track-be/model/dto"
 	"food-track-be/repository"
+	"github.com/apsystole/log"
 	"github.com/google/uuid"
 	"github.com/mashingan/smapping"
-	"log"
 	"time"
 )
 
@@ -27,6 +27,7 @@ func (s FoodConsumptionService) FindAllFoodConsumptionForMeal(mealId uuid.UUID) 
 	// Retrieve food consumptions from the repository
 	foodConsumptions, err := s.repository.FindAllFoodConsumptionForMeal(mealId)
 	if err != nil {
+		log.Errorln(err.Error())
 		return nil, err
 	}
 
@@ -34,6 +35,7 @@ func (s FoodConsumptionService) FindAllFoodConsumptionForMeal(mealId uuid.UUID) 
 	for _, foodConsumption := range foodConsumptions {
 		foodConsumptionDto, err := s.mapMealConsumptionToDto(foodConsumption)
 		if err != nil {
+			log.Errorln(err.Error())
 			return nil, err
 		}
 		foodConsumptionsDto = append(foodConsumptionsDto, &foodConsumptionDto)
@@ -49,15 +51,18 @@ func (s FoodConsumptionService) CreateFoodConsumptionForMeal(mealId uuid.UUID, f
 	err := smapping.FillStruct(&foodConsumption, mappedField)
 	foodConsumption.MealID = mealId
 	if err != nil {
-		log.Println(err)
+		log.Errorln(err.Error())
 		return foodConsumptionDto, err
 	}
 	foodConsumption.ID = uuid.New()
+
+	log.Debugln("creating food consumption for meal", mealId, foodConsumptionDto)
+
 	var transactionDto dto.FoodTransactionDto
 	if foodConsumption.FoodId != uuid.Nil && foodConsumption.TransactionId != uuid.Nil {
 		transactionDto, err = s.groceryService.GetTransactionDetail(foodConsumptionDto.FoodId, foodConsumptionDto.TransactionId, token)
 		if err != nil {
-			log.Println(err)
+			log.Errorln(err.Error())
 			return dto.FoodConsumptionDto{}, err
 		}
 		foodConsumption.Cost = (transactionDto.Price / transactionDto.Quantity) * foodConsumptionDto.QuantityUsed
@@ -65,7 +70,7 @@ func (s FoodConsumptionService) CreateFoodConsumptionForMeal(mealId uuid.UUID, f
 			if err != nil {
 				transactionDto.AvailableQuantity -= foodConsumptionDto.QuantityUsed
 				_, err = s.groceryService.UpdateFoodTransaction(foodConsumptionDto.FoodId, transactionDto, token)
-				println(err)
+				log.Errorln(err.Error())
 			}
 		}()
 	}
@@ -74,9 +79,10 @@ func (s FoodConsumptionService) CreateFoodConsumptionForMeal(mealId uuid.UUID, f
 
 	foodConsumptionDto, err = s.mapMealConsumptionToDto(&foodConsumption)
 	if err != nil {
-		log.Println(err)
+		log.Errorln(err.Error())
 		return foodConsumptionDto, err
 	}
+	log.Debugln("created food consumption for meal", mealId, foodConsumptionDto)
 	return foodConsumptionDto, nil
 }
 
@@ -85,6 +91,7 @@ func (s FoodConsumptionService) UpdateFoodConsumptionForMeal(mealId uuid.UUID, f
 	err := smapping.FillStruct(&foodConsumption, smapping.MapFields(&foodConsumptionDto))
 	foodConsumption.MealID = mealId
 	if err != nil {
+		log.Errorln(err.Error())
 		return foodConsumptionDto, err
 	}
 
@@ -93,6 +100,7 @@ func (s FoodConsumptionService) UpdateFoodConsumptionForMeal(mealId uuid.UUID, f
 	if foodConsumption.FoodId != uuid.Nil && foodConsumption.TransactionId != uuid.Nil {
 		transactionDto, err := s.groceryService.GetTransactionDetail(foodConsumptionDto.FoodId, foodConsumptionDto.TransactionId, token)
 		if err != nil {
+			log.Errorln(err.Error())
 			return dto.FoodConsumptionDto{}, err
 		}
 
@@ -105,15 +113,21 @@ func (s FoodConsumptionService) UpdateFoodConsumptionForMeal(mealId uuid.UUID, f
 	if foodConsumption.FoodId != uuid.Nil && foodConsumption.TransactionId != uuid.Nil {
 		prevConsumption, err := s.repository.FindById(foodConsumptionDto.ID)
 		if err != nil {
+			log.Errorln(err.Error())
 			return dto.FoodConsumptionDto{}, err
 		}
 		deltaQuantity := foodConsumptionDto.QuantityUsed - prevConsumption.QuantityUsed
 		transactionDto.AvailableQuantity += deltaQuantity
 		_, err = s.groceryService.UpdateFoodTransaction(foodConsumptionDto.FoodId, transactionDto, token)
+		if err != nil {
+			log.Errorln(err.Error())
+			return dto.FoodConsumptionDto{}, err
+		}
 	}
 
 	foodConsumptionDto, err = s.mapMealConsumptionToDto(&foodConsumption)
 	if err != nil {
+		log.Errorln(err.Error())
 		return foodConsumptionDto, err
 	}
 	return foodConsumptionDto, nil
@@ -122,7 +136,7 @@ func (s FoodConsumptionService) UpdateFoodConsumptionForMeal(mealId uuid.UUID, f
 func (s FoodConsumptionService) DeleteFoodConsumptionForMeal(mealId uuid.UUID, foodConsumptionId uuid.UUID, token string) error {
 	foodConsumption, err := s.repository.FindById(foodConsumptionId)
 	if err != nil {
-		log.Println(err)
+		log.Errorln(err.Error())
 		return err
 	}
 
@@ -132,13 +146,13 @@ func (s FoodConsumptionService) DeleteFoodConsumptionForMeal(mealId uuid.UUID, f
 		if err != nil {
 			transactionDto, err := s.groceryService.GetTransactionDetail(foodConsumption.FoodId, foodConsumption.TransactionId, token)
 			if err != nil {
-				log.Println(err)
+				log.Errorln(err.Error())
 				return err
 			}
 			transactionDto.AvailableQuantity += foodConsumption.QuantityUsed
 			_, err = s.groceryService.UpdateFoodTransaction(foodConsumption.FoodId, transactionDto, token)
 			if err != nil {
-				log.Println(err)
+				log.Errorln(err.Error())
 				return err
 			}
 		}
